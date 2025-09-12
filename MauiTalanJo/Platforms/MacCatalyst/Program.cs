@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace MauiTalanJo
+namespace KmKiolvasasMaui
 {
     public class Program
     {

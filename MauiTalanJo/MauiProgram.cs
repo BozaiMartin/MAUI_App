@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Plugin.Maui.OCR;
 
-namespace MauiTalanJo
+namespace KmKiolvasasMaui
 {
     public static class MauiProgram
     {

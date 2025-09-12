@@ -1,7 +1,7 @@
 ﻿using Plugin.Maui.OCR;
 using System.Threading.Tasks;
 
-namespace MauiTalanJo
+namespace KmKiolvasasMaui
 {
     public partial class MainPage : ContentPage
     {

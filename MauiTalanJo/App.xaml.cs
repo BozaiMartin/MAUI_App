@@ -1,4 +1,4 @@
-﻿namespace MauiTalanJo
+﻿namespace KmKiolvasasMaui
 {
     public partial class App : Application
     {

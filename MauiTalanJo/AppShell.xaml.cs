@@ -1,4 +1,4 @@
-﻿namespace MauiTalanJo
+﻿namespace KmKiolvasasMaui
 {
     public partial class AppShell : Shell
     {
