@@ -11,7 +11,7 @@
                 Source="tram_logo.png"
                 HeightRequest="185"
                 Aspect="AspectFit"
-                SemanticProperties.Description="dot net bot in a race car number eight" />
+                SemanticProperties.Description="villamos logója" />
 
             <Label
                 Text="Km kiolvasó alkalmazás"
@@ -19,10 +19,10 @@
                 SemanticProperties.HeadingLevel="Level1" />
 
             <Label
-                Text="Kérem válassza ki a képet vagy készítsen egy képet a vezérlő falról."
+                Text="Kérem válasszon ki egy képet vagy készítsen egy képet a vezérlő fal adatairól."
                 Style="{StaticResource SubHeadline}"
                 SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
+                SemanticProperties.Description="Kép kiválasztása vagy készítése" />
 
             <Button
                 x:Name="SelectBtn"

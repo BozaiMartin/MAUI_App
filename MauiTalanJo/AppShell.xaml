@@ -8,7 +8,7 @@
     Title="KmKiolvasasMaui">
 
     <ShellContent
-        Title="Home"
+        Title="Kezdőlap"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 
