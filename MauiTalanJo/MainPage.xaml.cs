@@ -80,10 +80,8 @@ namespace KmKiolvasasMaui
                         string tabla =
                             $"Dátum: {adatok.datum}\n" +
                             $"Pályaszám: {adatok.palyaszam}\n\n" +
-                            $"| Típus   | Megtett út |\n" +
-                            $"|---------|------------|\n" +
-                            $"| NAPI    | {adatok.napiKm} km |\n" +
-                            $"| ÖSSZES  | {adatok.osszKm} km |";
+                            $"Napi km: {adatok.napiKm} km\n" +
+                            $"Összes km: {adatok.osszKm} km";
 
                         await DisplayAlert("Kiolvasott adatok", tabla, "OK");
                     }
@@ -109,10 +107,10 @@ namespace KmKiolvasasMaui
             foreach (var sor in sorok)
             {
                 // dátum keresés: 2025.09.19. 09:06:53
-                var datumMatch = Regex.Match(sor, @"\d{4}\.\d{2}\.\d{2}\.\s+\d{2}:\d{2}:\d{2}");
+                var datumMatch = Regex.Match(sor, @"\d{4}\.\d{2}\.\d{2}\.\s*\d{2}:\d{2}:\d{2}");
                 if (datumMatch.Success)
                 {
-                    datum = datumMatch.Value;
+                    datum = datumMatch.Value.Trim();
                 }
 
                 // pályaszám: csak szám, 3-5 számjegy
@@ -122,21 +120,21 @@ namespace KmKiolvasasMaui
                 }
 
                 // megtett km-ek
-                if (sor.ToLower().Contains("megtett") && sor.ToLower().Contains("km"))
+                if (sor.Contains("Megtett", StringComparison.OrdinalIgnoreCase) && sor.Contains("km", StringComparison.OrdinalIgnoreCase))
                 {
-                    string szam = new string(sor.Where(char.IsDigit).ToArray());
-                    if (napiKm == "")
-                        napiKm = szam;  // első = napi
-                    else
-                        osszKm = szam;  // második = összes
+                    var match = Regex.Match(sor, @"(\d+)\s*km", RegexOptions.IgnoreCase);
+                    if (match.Success)
+                    {
+                        if (string.IsNullOrEmpty(napiKm))
+                            napiKm = match.Groups[1].Value;
+                        else if (string.IsNullOrEmpty(osszKm))
+                            osszKm = match.Groups[1].Value;
+                    }
                 }
             }
 
             return (datum, palyaszam, napiKm, osszKm);
         }
-
-
-
     }
 
 }
