@@ -25,7 +25,7 @@ namespace KmKiolvasasMaui
         {
             await KepFeldolgoz(async () => await MediaPicker.Default.CapturePhotoAsync());
         }
-        
+
         private async Task KepFeldolgoz(Func<Task<FileResult?>> kepValasztVagyKeszit)
         {
             try

@@ -1,5 +1,4 @@
-﻿using KmKiolvasasMaui.Data;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Plugin.Maui.OCR;
 
 namespace KmKiolvasasMaui
@@ -21,19 +20,7 @@ namespace KmKiolvasasMaui
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
-            using (var context = new PalyaszamDbContext())
-            {
-                string csvPath = Path.Combine(FileSystem.AppDataDirectory, "AllomanyTabla.csv");
 
-                if (!File.Exists(csvPath))
-                {
-                    using var stream = FileSystem.OpenAppPackageFileAsync("AllomanyTabla.csv").Result;
-                    using var fileStream = File.Create(csvPath);
-                    stream.CopyTo(fileStream);
-                }
-
-                PalyaszamSeeder.Seed(context, csvPath);
-            }
             return builder.Build();
         }
     }
