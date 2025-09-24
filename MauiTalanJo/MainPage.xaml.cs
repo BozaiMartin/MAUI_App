@@ -2,9 +2,6 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.Maui.ApplicationModel.Communication;
-using Microsoft.Maui.ApplicationModel;               
-using System.Collections.Generic;
 
 namespace KmKiolvasasMaui
 {
@@ -44,7 +41,6 @@ namespace KmKiolvasasMaui
                     if (ocrResult.Success)
                     {
                         var adatok = ParseOcrText(ocrResult.AllText);
-
                         // Ellenőrzés
                         List<string> hianyok = new();
                         if (string.IsNullOrWhiteSpace(adatok.datum)) hianyok.Add("Dátum");
@@ -52,7 +48,7 @@ namespace KmKiolvasasMaui
                         if (string.IsNullOrWhiteSpace(adatok.napiKm)) hianyok.Add("Napi km");
                         if (string.IsNullOrWhiteSpace(adatok.osszKm)) hianyok.Add("Összes km");
 
-                        if (hianyok.Any())
+                        if (hianyok.Count != 0)
                         {
                             string msg = "A következő adatok hiányoznak: " +
                                          string.Join(", ", hianyok) +
@@ -214,9 +210,9 @@ namespace KmKiolvasasMaui
         private static bool ContainsSimilar(string line, string target, int maxDistance = 2)
         {
             if (string.IsNullOrWhiteSpace(line) || string.IsNullOrWhiteSpace(target)) return false;
-            var tokens = Regex.Split(line, @"\W+").Where(t => !string.IsNullOrWhiteSpace(t));
+            IEnumerable<string> tokens = Regex.Split(line, @"\W+").Where(t => !string.IsNullOrWhiteSpace(t));
             string normTarget = NormalizeForCompare(target);
-            foreach (var t in tokens)
+            foreach (string t in tokens)
             {
                 if (LevenshteinDistance(NormalizeForCompare(t), normTarget) <= maxDistance)
                     return true;
@@ -229,10 +225,10 @@ namespace KmKiolvasasMaui
             if (string.IsNullOrEmpty(s)) return "";
             // eltávolítjuk az ékezeteket és uppercase
             string form = s.Normalize(NormalizationForm.FormD);
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             foreach (var ch in form)
             {
-                var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+                UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(ch);
                 if (uc != UnicodeCategory.NonSpacingMark)
                     sb.Append(ch);
             }
@@ -244,7 +240,7 @@ namespace KmKiolvasasMaui
             if (string.IsNullOrEmpty(a)) return b?.Length ?? 0;
             if (string.IsNullOrEmpty(b)) return a.Length;
 
-            var d = new int[a.Length + 1, b.Length + 1];
+            int[,] d = new int[a.Length + 1, b.Length + 1];
             for (int i = 0; i <= a.Length; i++) d[i, 0] = i;
             for (int j = 0; j <= b.Length; j++) d[0, j] = j;
 
