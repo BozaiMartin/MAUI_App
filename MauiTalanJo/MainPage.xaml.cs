@@ -1,6 +1,10 @@
 ﻿using Plugin.Maui.OCR;
+using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Microsoft.Maui.ApplicationModel.Communication;
+using Microsoft.Maui.ApplicationModel;               
+using System.Collections.Generic;
 
 namespace KmKiolvasasMaui
 {
@@ -17,84 +21,69 @@ namespace KmKiolvasasMaui
         }
         private async void SelectBtn_Clicked(object sender, EventArgs e)
         {
-            try
-            {
-                FileResult? pickResult = await MediaPicker.Default.PickPhotoAsync();
-                if (pickResult != null)
-                {
-                    using Stream imageAsStream = await pickResult.OpenReadAsync();
-                    byte[] imageAsBytes = new byte[imageAsStream.Length];
-                    await imageAsStream.ReadAsync(imageAsBytes);
-                   OcrResult? ocrResult = await OcrPlugin.Default.RecognizeTextAsync(imageAsBytes,true);
-                    //if (!ocrResult.Success)
-                    //{
-                    //    await DisplayAlert("Hibás", "nincs OCR", "OK");
-                    //    return;
-                    //}
-                    //await DisplayAlert("Eredmény", ocrResult.AllText, "OK");
-                    if (ocrResult.Success)
-                    {
-                        var adatok = ParseOcrText(ocrResult.AllText);
-
-                        string tabla =
-                            $"Dátum: {adatok.datum}\n" +
-                            $"Pályaszám: {adatok.palyaszam}\n\n" +
-                            $"| Típus   | Megtett út |\n" +
-                            $"|---------|------------|\n" +
-                            $"| NAPI    | {adatok.napiKm} km |\n" +
-                            $"| ÖSSZES  | {adatok.osszKm} km |";
-
-                        await DisplayAlert("Kiolvasott adatok", tabla, "OK");
-                    }
-
-                }
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", $"An error occurred while picking the photo: {ex.Message}", "OK");
-                return;
-            }
+            await ProcessImage(async () => await MediaPicker.Default.PickPhotoAsync());
         }
 
         private async void PictureBtn_Clicked(object sender, EventArgs e)
         {
+            await ProcessImage(async () => await MediaPicker.Default.CapturePhotoAsync());
+        }
+
+        private async Task ProcessImage(Func<Task<FileResult?>> pickOrCapture)
+        {
             try
             {
-                FileResult? pickResult = await MediaPicker.Default.CapturePhotoAsync();
+                FileResult? pickResult = await pickOrCapture();
                 if (pickResult != null)
                 {
                     using Stream imageAsStream = await pickResult.OpenReadAsync();
                     byte[] imageAsBytes = new byte[imageAsStream.Length];
                     await imageAsStream.ReadAsync(imageAsBytes);
                     OcrResult? ocrResult = await OcrPlugin.Default.RecognizeTextAsync(imageAsBytes, true);
-                    //if (!ocrResult.Success)
-                    //{
-                    //    await DisplayAlert("Hibás", "nincs OCR", "OK");
-                    //    return;
-                    //}
-                    //await DisplayAlert("Eredmény", ocrResult.AllText, "OK");
+
                     if (ocrResult.Success)
                     {
                         var adatok = ParseOcrText(ocrResult.AllText);
 
+                        // Ellenőrzés
+                        List<string> hianyok = new();
+                        if (string.IsNullOrWhiteSpace(adatok.datum)) hianyok.Add("Dátum");
+                        if (string.IsNullOrWhiteSpace(adatok.palyaszam)) hianyok.Add("Pályaszám");
+                        if (string.IsNullOrWhiteSpace(adatok.napiKm)) hianyok.Add("Napi km");
+                        if (string.IsNullOrWhiteSpace(adatok.osszKm)) hianyok.Add("Összes km");
+
+                        if (hianyok.Any())
+                        {
+                            string msg = "A következő adatok hiányoznak: " +
+                                         string.Join(", ", hianyok) +
+                                         "\nKérlek, fényképezd újra!";
+                            await DisplayAlert("Hiányzó adatok", msg, "OK");
+                            return;
+                        }
+
+                        // Ha minden adat megvan → email küldés
                         string tabla =
                             $"Dátum: {adatok.datum}\n" +
                             $"Pályaszám: {adatok.palyaszam}\n\n" +
                             $"Napi km: {adatok.napiKm} km\n" +
                             $"Összes km: {adatok.osszKm} km";
 
-                        await DisplayAlert("Kiolvasott adatok", tabla, "OK");
+                        await EmailKuld.KuldesAsync(
+                            "bozaimartin@gmail.com",
+                            "Kiolvasott adatok",
+                            tabla);
+
+
+                        await DisplayAlert("Siker", "Az adatok kiolvasva és az email megnyitva küldéshez.", "OK");
                     }
-
-
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"An error occurred while taking the photo: {ex.Message}", "OK");
-                return;
+                await DisplayAlert("Error", $"Hiba történt: {ex.Message}", "OK");
             }
         }
+
         private (string datum, string palyaszam, string napiKm, string osszKm) ParseOcrText(string ocrText)
         {
             string datum = "";
@@ -102,39 +91,174 @@ namespace KmKiolvasasMaui
             string napiKm = "";
             string osszKm = "";
 
-            var sorok = ocrText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            if (string.IsNullOrWhiteSpace(ocrText))
+                return (datum, palyaszam, napiKm, osszKm);
 
-            foreach (var sor in sorok)
+            // 1) Előfeldolgozás: nagybetű + gyakori OCR-hibák javítása token-szinten
+            string pre = ocrText.ToUpperInvariant();
+
+            Dictionary<string, string> fixes = new Dictionary<string, string>
             {
-                // dátum keresés: 2025.09.19. 09:06:53
-                var datumMatch = Regex.Match(sor, @"\d{4}\.\d{2}\.\d{2}\.\s*\d{2}:\d{2}:\d{2}");
-                if (datumMatch.Success)
+                // km variánsok
+                {"KLM", "KM"}, {"K1M", "KM"}, {"K I M", "KM"}, {"K|M", "KM"}, {"KIR", "KM"}, {"K1R","KM"},
+                // összes / rosszul olvasott O hiány
+                {"SSZES", "OSSZES"}, {"OSZES", "OSSZES"},
+                // egyéb gyakori rövidítések/javítások
+                {"MEGTET", "MEGTETT"}, {"MEGTETTIT", "MEGTETT"}, {"MEGTETT IT", "MEGTETT UT"}, {"MEGTETTUT", "MEGTETT UT"}
+            };
+
+            foreach (var kv in fixes)
+                pre = Regex.Replace(pre, @"\b" + Regex.Escape(kv.Key) + @"\b", kv.Value, RegexOptions.IgnoreCase);
+
+            // sorokra bontás
+            string[] lines = pre.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                           .Select(l => l.Trim())
+                           .Where(l => !string.IsNullOrWhiteSpace(l))
+                           .ToArray();
+
+            // 2) Dátum keresés (szigorú mintával: YYYY.MM.DD.)
+            var dm = Regex.Match(pre, @"\b\d{4}\.\d{2}\.\d{2}\.");
+            if (dm.Success)
+                datum = dm.Value.Trim();
+            else datum = DateTime.Today.ToString("yyyy.MM.dd.");
+
+            // 3) Pályaszám: első "tiszta" 3-5 jegyű szám a sorok között
+            foreach (var sor in lines)
                 {
-                    datum = datumMatch.Value.Trim();
+                    // csak 4-essel kezdődő, 4 számjegyű számokat keresünk
+                    var p = Regex.Match(sor, @"\b(4\d{3})\b");
+                    if (p.Success)
+                    {
+                        var talalt = p.Groups[1].Value;
+
+                        palyaszam = talalt;
+                        break;
+                    }
                 }
 
-                // pályaszám: csak szám, 3-5 számjegy
-                if (Regex.IsMatch(sor.Trim(), @"^\d{3,5}$"))
-                {
-                    palyaszam = sor.Trim();
-                }
+            // 4) Fejlécek keresése (NAPI, OSSZES)
+            // 4) Napi / Összes km keresés konkrét mintával
+            var napiM = Regex.Match(pre, @"MEGTETT\s*ÚT\s*=\s*(\d+)\s*KM", RegexOptions.IgnoreCase);
+            if (napiM.Success)
+                napiKm = napiM.Groups[1].Value;
 
-                // megtett km-ek
-                if (sor.Contains("Megtett", StringComparison.OrdinalIgnoreCase) && sor.Contains("km", StringComparison.OrdinalIgnoreCase))
+            var osszIdx = Array.FindIndex(lines, l => ContainsSimilar(l, "OSSZES", 2));
+            if (osszIdx >= 0)
+            {
+                for (int i = osszIdx; i < Math.Min(lines.Length, osszIdx + 5); i++)
                 {
-                    var match = Regex.Match(sor, @"(\d+)\s*km", RegexOptions.IgnoreCase);
-                    if (match.Success)
+                    var m = Regex.Match(lines[i], @"MEGTETT\s*ÚT\s*=\s*(\d+)\s*KM", RegexOptions.IgnoreCase);
+                    if (m.Success)
+                    {
+                        osszKm = m.Groups[1].Value;
+                        break;
+                    }
+                }
+            }
+
+            // 5) Sorok átvizsgálása: explicit "MEGTETT" és "KM" sorok
+            foreach (var sor in lines)
+            {
+                if (ContainsSimilar(sor, "MEGTETT", 2) || sor.Contains("MEGTETT"))
+                {
+                    var m = Regex.Match(sor, @"\b(\d{1,7})\b");
+                    if (m.Success)
                     {
                         if (string.IsNullOrEmpty(napiKm))
-                            napiKm = match.Groups[1].Value;
+                            napiKm = m.Groups[1].Value;
                         else if (string.IsNullOrEmpty(osszKm))
-                            osszKm = match.Groups[1].Value;
+                            osszKm = m.Groups[1].Value;
                     }
+                }
+                else if (ContainsSimilar(sor, "KM", 1) || sor.Contains("KM"))
+                {
+                    var m = Regex.Match(sor, @"\b(\d{1,7})\b");
+                    if (m.Success)
+                    {
+                        if (string.IsNullOrEmpty(napiKm))
+                            napiKm = m.Groups[1].Value;
+                        else if (string.IsNullOrEmpty(osszKm))
+                            osszKm = m.Groups[1].Value;
+                    }
+                }
+            }
+
+            // 6) Végső fallback: ha még hiányzik valamelyik, gyűjtsük össze az összes számot és heuristikusan osszuk szét
+            if (string.IsNullOrEmpty(napiKm) || string.IsNullOrEmpty(osszKm))
+            {
+                var allNums = Regex.Matches(pre, @"\b(\d{1,7})\b")
+                                   .Cast<Match>()
+                                   .Select(m => m.Groups[1].Value)
+                                   .Distinct()
+                                   .Where(s => s != palyaszam && !s.StartsWith("202")) // kihagyjuk a pályaszámot és valószínű dátum-éveket
+                                   .ToList();
+
+                // gyakorlatban: napi = kisebb érték, összes = nagy (heurisztika)
+                if (allNums.Count > 0 && string.IsNullOrEmpty(napiKm))
+                {
+                    int val = allNums.Select(int.Parse).OrderBy(x => x).First();
+                    napiKm = val.ToString();
+                    allNums.Remove(val.ToString());
+                }
+                if (allNums.Count > 0 && string.IsNullOrEmpty(osszKm))
+                {
+                    int val = allNums.Select(int.Parse).OrderByDescending(x => x).First();
+                    osszKm = val.ToString();
                 }
             }
 
             return (datum, palyaszam, napiKm, osszKm);
         }
+
+        // ---------- segédfüggvények ----------
+        private static bool ContainsSimilar(string line, string target, int maxDistance = 2)
+        {
+            if (string.IsNullOrWhiteSpace(line) || string.IsNullOrWhiteSpace(target)) return false;
+            var tokens = Regex.Split(line, @"\W+").Where(t => !string.IsNullOrWhiteSpace(t));
+            string normTarget = NormalizeForCompare(target);
+            foreach (var t in tokens)
+            {
+                if (LevenshteinDistance(NormalizeForCompare(t), normTarget) <= maxDistance)
+                    return true;
+            }
+            return false;
+        }
+
+        private static string NormalizeForCompare(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            // eltávolítjuk az ékezeteket és uppercase
+            string form = s.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            foreach (var ch in form)
+            {
+                var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                    sb.Append(ch);
+            }
+            return sb.ToString().ToUpperInvariant();
+        }
+
+        private static int LevenshteinDistance(string a, string b)
+        {
+            if (string.IsNullOrEmpty(a)) return b?.Length ?? 0;
+            if (string.IsNullOrEmpty(b)) return a.Length;
+
+            var d = new int[a.Length + 1, b.Length + 1];
+            for (int i = 0; i <= a.Length; i++) d[i, 0] = i;
+            for (int j = 0; j <= b.Length; j++) d[0, j] = j;
+
+            for (int i = 1; i <= a.Length; i++)
+            {
+                for (int j = 1; j <= b.Length; j++)
+                {
+                    int cost = (a[i - 1] == b[j - 1]) ? 0 : 1;
+                    d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
+                }
+            }
+            return d[a.Length, b.Length];
+        }
+
     }
 
 }
