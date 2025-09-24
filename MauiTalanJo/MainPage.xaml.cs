@@ -2,14 +2,23 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Maui.Networking;
+using KmKiolvasasMaui.Adatbazis;
 
 namespace KmKiolvasasMaui
 {
     public partial class MainPage : ContentPage
     {
+        public static Adatbazis_Kezelo Adatbazis { get; private set; }
         public MainPage()
         {
             InitializeComponent();
+            Adatbazis = new Adatbazis_Kezelo();
+            Inicializal();
+        }
+        private async void Inicializal()
+        {
+            await Adatbazis.InicializalasAsync();
         }
         protected async override void OnAppearing()
         {
@@ -30,6 +39,8 @@ namespace KmKiolvasasMaui
         {
             try
             {
+                bool vanNet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+
                 FileResult? kepEredmeny = await kepValasztVagyKeszit();
                 if (kepEredmeny != null)
                 {
@@ -64,10 +75,39 @@ namespace KmKiolvasasMaui
                             $"Napi km: {adatok.napiKm} km\n" +
                             $"Összes km: {adatok.osszKm} km";
 
-                        await EmailKuld.KuldesAsync(
-                            "bozaimartin@gmail.com",
-                            "Kiolvasott adatok",
-                            tabla);
+                        if (vanNet)
+                        {
+                            await EmailKuld.KuldesAsync(
+                                "bozaimartin@gmail.com",
+                                "Kiolvasott adatok",
+                                tabla);
+
+                            await DisplayAlert("Siker", "Az adatok kiolvasva és az email elküldve.", "OK");
+
+                            KiolvasottAdat adat = new KiolvasottAdat
+                            {
+                                Datum = DateTime.Parse(adatok.datum),
+                                Palyaszam = int.Parse(adatok.palyaszam),
+                                Napi_km = int.Parse(adatok.napiKm),
+                                Ossz_km = int.Parse(adatok.osszKm),
+                                Email_kuldve = true
+                            };
+                            await Adatbazis.MentesAsync(adat);
+                        }
+                        else
+                        {
+                            KiolvasottAdat adat = new KiolvasottAdat
+                            {
+                                Datum = DateTime.Parse(adatok.datum),
+                                Palyaszam = int.Parse(adatok.palyaszam),
+                                Napi_km = int.Parse(adatok.napiKm),
+                                Ossz_km = int.Parse(adatok.osszKm),
+                                Email_kuldve = false
+                            };
+                            await Adatbazis.MentesAsync(adat);
+                            await DisplayAlert("Offline mentés", "Nincs internetkapcsolat, az adatokat mentettük az adatbázisba.", "OK");
+                        }
+
 
 
                         await DisplayAlert("Siker", "Az adatok kiolvasva és az email megnyitva küldéshez.", "OK");
@@ -76,7 +116,7 @@ namespace KmKiolvasasMaui
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Hiba történt: {ex.Message}", "OK");
+                await DisplayAlert("Hiba", $"Hiba történt: {ex.Message}", "OK");
             }
         }
 
