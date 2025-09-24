@@ -18,29 +18,29 @@ namespace KmKiolvasasMaui
         }
         private async void SelectBtn_Clicked(object sender, EventArgs e)
         {
-            await ProcessImage(async () => await MediaPicker.Default.PickPhotoAsync());
+            await KepFeldolgoz(async () => await MediaPicker.Default.PickPhotoAsync());
         }
 
         private async void PictureBtn_Clicked(object sender, EventArgs e)
         {
-            await ProcessImage(async () => await MediaPicker.Default.CapturePhotoAsync());
+            await KepFeldolgoz(async () => await MediaPicker.Default.CapturePhotoAsync());
         }
 
-        private async Task ProcessImage(Func<Task<FileResult?>> pickOrCapture)
+        private async Task KepFeldolgoz(Func<Task<FileResult?>> kepValasztVagyKeszit)
         {
             try
             {
-                FileResult? pickResult = await pickOrCapture();
-                if (pickResult != null)
+                FileResult? kepEredmeny = await kepValasztVagyKeszit();
+                if (kepEredmeny != null)
                 {
-                    using Stream imageAsStream = await pickResult.OpenReadAsync();
+                    using Stream imageAsStream = await kepEredmeny.OpenReadAsync();
                     byte[] imageAsBytes = new byte[imageAsStream.Length];
                     await imageAsStream.ReadAsync(imageAsBytes);
                     OcrResult? ocrResult = await OcrPlugin.Default.RecognizeTextAsync(imageAsBytes, true);
 
                     if (ocrResult.Success)
                     {
-                        var adatok = ParseOcrText(ocrResult.AllText);
+                        var adatok = OcrAdatokKinyeres(ocrResult.AllText);
                         // Ellenőrzés
                         List<string> hianyok = new();
                         if (string.IsNullOrWhiteSpace(adatok.datum)) hianyok.Add("Dátum");
@@ -80,7 +80,7 @@ namespace KmKiolvasasMaui
             }
         }
 
-        private (string datum, string palyaszam, string napiKm, string osszKm) ParseOcrText(string ocrText)
+        private (string datum, string palyaszam, string napiKm, string osszKm) OcrAdatokKinyeres(string ocrText)
         {
             string datum = "";
             string palyaszam = "";
@@ -138,7 +138,7 @@ namespace KmKiolvasasMaui
             if (napiM.Success)
                 napiKm = napiM.Groups[1].Value;
 
-            var osszIdx = Array.FindIndex(lines, l => ContainsSimilar(l, "OSSZES", 2));
+            var osszIdx = Array.FindIndex(lines, l => HasonlotTartalmaz(l, "OSSZES", 2));
             if (osszIdx >= 0)
             {
                 for (int i = osszIdx; i < Math.Min(lines.Length, osszIdx + 5); i++)
@@ -155,7 +155,7 @@ namespace KmKiolvasasMaui
             // 5) Sorok átvizsgálása: explicit "MEGTETT" és "KM" sorok
             foreach (var sor in lines)
             {
-                if (ContainsSimilar(sor, "MEGTETT", 2) || sor.Contains("MEGTETT"))
+                if (HasonlotTartalmaz(sor, "MEGTETT", 2) || sor.Contains("MEGTETT"))
                 {
                     var m = Regex.Match(sor, @"\b(\d{1,7})\b");
                     if (m.Success)
@@ -166,7 +166,7 @@ namespace KmKiolvasasMaui
                             osszKm = m.Groups[1].Value;
                     }
                 }
-                else if (ContainsSimilar(sor, "KM", 1) || sor.Contains("KM"))
+                else if (HasonlotTartalmaz(sor, "KM", 1) || sor.Contains("KM"))
                 {
                     var m = Regex.Match(sor, @"\b(\d{1,7})\b");
                     if (m.Success)
@@ -207,20 +207,20 @@ namespace KmKiolvasasMaui
         }
 
         // ---------- segédfüggvények ----------
-        private static bool ContainsSimilar(string line, string target, int maxDistance = 2)
+        private static bool HasonlotTartalmaz(string vonal, string cel, int maxTavolsag = 2)
         {
-            if (string.IsNullOrWhiteSpace(line) || string.IsNullOrWhiteSpace(target)) return false;
-            IEnumerable<string> tokens = Regex.Split(line, @"\W+").Where(t => !string.IsNullOrWhiteSpace(t));
-            string normTarget = NormalizeForCompare(target);
-            foreach (string t in tokens)
+            if (string.IsNullOrWhiteSpace(vonal) || string.IsNullOrWhiteSpace(cel)) return false;
+            IEnumerable<string> tokenek = Regex.Split(vonal, @"\W+").Where(t => !string.IsNullOrWhiteSpace(t));
+            string normalCel = OsszehasonlitNormalizal(cel);
+            foreach (string t in tokenek)
             {
-                if (LevenshteinDistance(NormalizeForCompare(t), normTarget) <= maxDistance)
+                if (TavolsagSzamitas(OsszehasonlitNormalizal(t), normalCel) <= maxTavolsag)
                     return true;
             }
             return false;
         }
 
-        private static string NormalizeForCompare(string s)
+        private static string OsszehasonlitNormalizal(string s)
         {
             if (string.IsNullOrEmpty(s)) return "";
             // eltávolítjuk az ékezeteket és uppercase
@@ -235,8 +235,9 @@ namespace KmKiolvasasMaui
             return sb.ToString().ToUpperInvariant();
         }
 
-        private static int LevenshteinDistance(string a, string b)
+        private static int TavolsagSzamitas(string a, string b)
         {
+            //2 karakter között tavolas számítás (Levenshtein-távolság)
             if (string.IsNullOrEmpty(a)) return b?.Length ?? 0;
             if (string.IsNullOrEmpty(b)) return a.Length;
 

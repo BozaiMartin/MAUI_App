@@ -1,7 +1,5 @@
 ﻿using MailKit.Net.Smtp;
 using MimeKit;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using MailKit.Security;
 
 public static class EmailKuld
@@ -9,7 +7,7 @@ public static class EmailKuld
     public static async Task KuldesAsync(string to, string subject, string body)
     {
         MimeMessage message = new MimeMessage();
-        message.From.Add(new MailboxAddress("Kiolvasó App", "bozaimartin2@gmail.com"));
+        message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "bozaimartin@gmail.com"));
         message.To.Add(new MailboxAddress("", to));
         message.Subject = subject;
         message.Body = new TextPart("plain") { Text = body };
