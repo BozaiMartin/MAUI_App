@@ -78,6 +78,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="bin\Release\net8.0-android\publish\com.companyname.mauitalanjo-Signed.aab" />
+	  <None Include="bin\Release\net8.0-android\publish\com.companyname.mauitalanjo-Signed.apk" />
+	  <None Include="bin\Release\net8.0-android\publish\com.companyname.mauitalanjo.aab" />
+	  <None Include="bin\Release\net8.0-android\publish\_Microsoft.Android.Resource.Designer.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="MailKit" Version="4.13.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
