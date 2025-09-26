@@ -21,15 +21,19 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>MauiTalanJo</ApplicationTitle>
+		<ApplicationTitle>Km Kiolvasó alkalmazás</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.mauitalanjo</ApplicationId>
+		<ApplicationId>com.companyname.KmKiolvasasMaui</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
-
+		<ApplicationVersion>1.1</ApplicationVersion>
+		
+		<AndroidVersionCode>1.0</AndroidVersionCode>
+		<!-- növeld minden frissítésnél -->
+		<AndroidVersionName>1.1</AndroidVersionName>
+		
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
