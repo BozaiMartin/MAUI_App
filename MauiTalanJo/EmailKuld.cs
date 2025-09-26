@@ -7,7 +7,8 @@ public static class EmailKuld
     public static async Task KuldesAsync(string to, string subject, string body)
     {
         MimeMessage message = new MimeMessage();
-        message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "bozaimartin@gmail.com"));
+        message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "pozsgaii@bkv.hu"));
+        message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "bozaim@bkv.hu"));
         message.To.Add(new MailboxAddress("", to));
         message.Subject = subject;
         message.Body = new TextPart("plain") { Text = body };
