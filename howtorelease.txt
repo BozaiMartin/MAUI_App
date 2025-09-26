@@ -1,0 +1,5 @@
+terminal:
+dotnet build -c Release -f:net8.0-android
+
+APK itt lesz:
+bin\Release\net8.0-android\
