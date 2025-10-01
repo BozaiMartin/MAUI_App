@@ -8,9 +8,10 @@ namespace KmKiolvasasMaui
         {
             InitializeComponent();
 
-            Routing.RegisterRoute("EmailOldal", typeof(BejelentkezesOldal));
+            Routing.RegisterRoute("MainPage", typeof(MainPage));
             Routing.RegisterRoute("EmailOldal", typeof(EmailOldal));
-            Routing.RegisterRoute("FenykepOldal", typeof(MainPage));
+            Routing.RegisterRoute("BejelentkezesOldal", typeof(BejelentkezesOldal));
+
         }
     }
 

@@ -9,17 +9,17 @@
             Spacing="25">
 
             <Picker x:Name="OldalPicker"
-                    Title="Válassz oldalt"
-                    SelectedIndexChanged="OnOldalValasztva"
-                    HorizontalOptions="Fill">
+        Title="Válassz oldalt"
+        SelectedIndexChanged="OnOldalValasztva"
+        HorizontalOptions="Fill">
                 <Picker.ItemsSource>
                     <x:Array Type="{x:Type x:String}">
                         <x:String>Email oldal</x:String>
-                        <x:String>Beolvasás oldal</x:String>
                         <x:String>Bejelentkezés oldal</x:String>
                     </x:Array>
                 </Picker.ItemsSource>
             </Picker>
+
 
             <Image
                 Source="tram_logo.png"

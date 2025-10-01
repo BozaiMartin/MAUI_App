@@ -1,9 +1,22 @@
-namespace KmKiolvasMaui;
+using Microsoft.Maui.Controls;
 
-public partial class BejelentkezesOldal : ContentPage
+namespace KmKiolvasasMaui
 {
-	public BejelentkezesOldal()
-	{
-		InitializeComponent();
-	}
+    public partial class BejelentkezesOldal : ContentPage
+    {
+        public BejelentkezesOldal()
+        {
+            InitializeComponent();
+        }
+
+        private async void NavigalMainPage(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("MainPage");
+        }
+
+        private async void NavigalEmailOldal(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("EmailOldal");
+        }
+    }
 }
