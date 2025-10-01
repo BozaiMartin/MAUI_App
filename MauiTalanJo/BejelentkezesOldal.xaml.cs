@@ -1,3 +1,4 @@
+using KmKiolvasMaui;
 using Microsoft.Maui.Controls;
 
 namespace KmKiolvasasMaui
@@ -11,12 +12,14 @@ namespace KmKiolvasasMaui
 
         private async void NavigalMainPage(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("MainPage");
+            await Navigation.PushAsync(new MainPage());
         }
 
         private async void NavigalEmailOldal(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("EmailOldal");
+            await Navigation.PushAsync(new EmailOldal());
         }
+
+
     }
 }

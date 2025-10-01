@@ -16,17 +16,18 @@ namespace KmKiolvasasMaui
         {
             InitializeComponent();
             Adatbazis = new Adatbazis_Kezelo();
-            Inicializal();
         }
         private async void OnOldalValasztva(object sender, EventArgs e)
         {
             var valasztott = OldalPicker.SelectedItem as string;
 
             if (valasztott == "Email oldal")
-                await Shell.Current.GoToAsync("EmailOldal");
+                await Navigation.PushAsync(new EmailOldal());
             else if (valasztott == "Bejelentkezés oldal")
-                await Shell.Current.GoToAsync("BejelentkezesOldal");
+                await Navigation.PushAsync(new BejelentkezesOldal());
         }
+
+
 
 
         private async void Inicializal()

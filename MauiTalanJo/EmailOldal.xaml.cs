@@ -1,10 +1,15 @@
-namespace KmKiolvasMaui;
-using KmKiolvasasMaui.Adatbazis;
-
-public partial class EmailOldal : ContentPage
+namespace KmKiolvasasMaui
 {
-	public EmailOldal()
-	{
-		InitializeComponent();
-	}
+    public partial class EmailOldal : ContentPage
+    {
+        public EmailOldal()
+        {
+            InitializeComponent();
+        }
+
+        private async void Vissza_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
+    }
 }

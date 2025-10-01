@@ -7,15 +7,9 @@ namespace KmKiolvasasMaui
         public App()
         {
             InitializeComponent();
-            MainPage = new AppShell();
-
-            MainPage.Dispatcher.Dispatch(async () =>
-            {
-                await Shell.Current.GoToAsync("BejelentkezesOldal");
-            });
-
-            // MainPage = new BejelentkezesOldal{};
-
+            MainPage = new NavigationPage(new BejelentkezesOldal());
         }
     }
+
+
 }
