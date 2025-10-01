@@ -1,4 +1,5 @@
 ﻿using KmKiolvasMaui;
+using KmKiolvasasMaui;
 namespace KmKiolvasasMaui
 {
     public partial class AppShell : Shell
@@ -7,8 +8,9 @@ namespace KmKiolvasasMaui
         {
             InitializeComponent();
 
+            Routing.RegisterRoute("EmailOldal", typeof(BejelentkezesOldal));
             Routing.RegisterRoute("EmailOldal", typeof(EmailOldal));
-            Routing.RegisterRoute("FenykepOldal", typeof(FenykepOldal));
+            Routing.RegisterRoute("FenykepOldal", typeof(MainPage));
         }
     }
 

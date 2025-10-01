@@ -106,6 +106,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="BejelentkezesOldal.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="EmailOldal.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
