@@ -6,7 +6,9 @@
         {
             InitializeComponent();
 
-            MainPage = new AppShell();
+            //MainPage = new AppShell();
+            MainPage = new ContentPage { Content = new Label { Text = "Teszt oldal" } };
+
         }
     }
 }
