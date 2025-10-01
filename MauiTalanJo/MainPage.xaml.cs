@@ -18,20 +18,43 @@ namespace KmKiolvasasMaui
             Adatbazis = new Adatbazis_Kezelo();
             Inicializal();
         }
-        private async void OnNavigateButtonClicked(object sender, EventArgs e)
+        private void OnOldalValasztva(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new EmailOldal());
+            var valasztott = OldalPicker.SelectedItem as string;
+
+            if (valasztott == "Email oldal")
+                Shell.Current.GoToAsync("EmailOldal");
+            else if (valasztott == "Beolvasás oldal")
+                Shell.Current.GoToAsync("BeolvasasOldal");
+            else if (valasztott == "Bejelentkezés oldal")
+                Shell.Current.GoToAsync("BejelentkezesOldal");
         }
 
         private async void Inicializal()
         {
-            await Adatbazis.InicializalasAsync();
+            try
+            {
+                await Adatbazis.InicializalasAsync();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", $"Adatbázis inicializálás sikertelen: {ex.Message}", "OK");
+            }
         }
+
         protected async override void OnAppearing()
         {
             base.OnAppearing();
-            await OcrPlugin.Default.InitAsync();
+            try
+            {
+                await OcrPlugin.Default.InitAsync();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", $"OCR inicializálás sikertelen: {ex.Message}", "OK");
+            }
         }
+
         private async void SelectBtn_Clicked(object sender, EventArgs e)
         {
             await KepFeldolgoz(async () => await MediaPicker.Default.PickPhotoAsync());

@@ -100,8 +100,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="FenykepOldal.xaml.cs">
-	    <DependentUpon>FenykepOldal.xaml</DependentUpon>
+	  <Compile Update="MainPage.xaml.cs">
+	    <DependentUpon>MainPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 

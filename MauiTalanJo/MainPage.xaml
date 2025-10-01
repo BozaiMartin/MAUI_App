@@ -7,6 +7,20 @@
         <VerticalStackLayout
             Padding="30,0"
             Spacing="25">
+
+            <Picker x:Name="OldalPicker"
+                    Title="Válassz oldalt"
+                    SelectedIndexChanged="OnOldalValasztva"
+                    HorizontalOptions="Fill">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Email oldal</x:String>
+                        <x:String>Beolvasás oldal</x:String>
+                        <x:String>Bejelentkezés oldal</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+
             <Image
                 Source="tram_logo.png"
                 HeightRequest="185"
@@ -34,9 +48,10 @@
             <Button
                 x:Name="PictureBtn"
                 Text="Kép készítése" 
-                SemanticProperties.Hint="Megnyitja a kamerát és kéet készít."
+                SemanticProperties.Hint="Megnyitja a kamerát és képet készít."
                 Clicked="PictureBtn_Clicked"
                 HorizontalOptions="Fill" />
+
         </VerticalStackLayout>
     </ScrollView>
 
