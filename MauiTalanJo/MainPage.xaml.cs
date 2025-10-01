@@ -16,6 +16,11 @@ namespace KmKiolvasasMaui
             Adatbazis = new Adatbazis_Kezelo();
             Inicializal();
         }
+        private async void OnNavigateButtonClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new EmailOldal());
+        }
+
         private async void Inicializal()
         {
             await Adatbazis.InicializalasAsync();
