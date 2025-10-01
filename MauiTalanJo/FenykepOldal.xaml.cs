@@ -4,12 +4,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Maui.Networking;
 using KmKiolvasasMaui.Adatbazis;
+using KmKiolvasMaui;
 
 namespace KmKiolvasasMaui
 {
     public partial class MainPage : ContentPage
     {
         public static Adatbazis_Kezelo Adatbazis { get; private set; }
+
         public MainPage()
         {
             InitializeComponent();

@@ -100,6 +100,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="FenykepOldal.xaml.cs">
+	    <DependentUpon>FenykepOldal.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="EmailOldal.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -1,4 +1,5 @@
 namespace KmKiolvasMaui;
+using KmKiolvasasMaui.Adatbazis;
 
 public partial class EmailOldal : ContentPage
 {
