@@ -1,5 +1,4 @@
 ﻿using Foundation;
-
 namespace KmKiolvasasMaui
 {
     [Register("AppDelegate")]

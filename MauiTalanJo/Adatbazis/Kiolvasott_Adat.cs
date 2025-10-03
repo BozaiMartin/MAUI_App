@@ -1,5 +1,4 @@
 ﻿using SQLite;
-using static KmKiolvasasMaui.Adatbazis.PalyaszamInfo;
 
 namespace KmKiolvasasMaui.Adatbazis
 {

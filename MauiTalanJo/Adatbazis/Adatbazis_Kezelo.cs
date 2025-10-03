@@ -1,5 +1,4 @@
 ﻿using SQLite;
-using System.IO;
 
 namespace KmKiolvasasMaui.Adatbazis
 {
@@ -17,7 +16,24 @@ namespace KmKiolvasasMaui.Adatbazis
         {
             await _db.CreateTableAsync<KiolvasottAdat>();
             await _db.CreateTableAsync<PalyaszamInfo>();
+            await _db.CreateTableAsync<IdeiglenesAdat>();
         }
+        #region IdeiglenesAdat
+        public async Task MentIdeiglenesAsync(IdeiglenesAdat adat)
+        {
+            await _db.InsertAsync(adat);
+        }
+
+        public async Task<List<IdeiglenesAdat>> LekerdezesIdeiglenesAsync()
+        {
+            return await _db.Table<IdeiglenesAdat>().ToListAsync();
+        }
+        public async Task TorolIdeiglenesAsync()
+        {
+            await _db.DeleteAllAsync<IdeiglenesAdat>();
+        }
+        #endregion
+
 
         public async Task MentesAsync(KiolvasottAdat adat)
         {

@@ -1,6 +1,4 @@
-﻿using KmKiolvasasMaui.Adatbazis;
-
-namespace KmKiolvasasMaui.Adatbazis
+﻿namespace KmKiolvasasMaui.Adatbazis
 {
     internal class Adat_Mentes
     {

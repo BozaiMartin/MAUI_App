@@ -1,5 +1,3 @@
-using Microsoft.Maui.Controls;
-
 namespace KmKiolvasasMaui
 {
     public partial class BejelentkezesOldal : ContentPage

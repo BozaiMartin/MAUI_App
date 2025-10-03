@@ -35,8 +35,6 @@ namespace KmKiolvasasMaui
             try
             {
                 await OcrPlugin.Default.InitAsync();
-                //string dbPath = Path.Combine(FileSystem.AppDataDirectory, "kmadatok.db");
-                //await DisplayAlert("DB path", dbPath, "OK");
             }
             catch (Exception ex)
             {
@@ -58,8 +56,6 @@ namespace KmKiolvasasMaui
         {
             try
             {
-                bool vanNet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
-
                 FileResult? kepEredmeny = await kepValasztVagyKeszit();
                 if (kepEredmeny != null)
                 {
@@ -71,6 +67,7 @@ namespace KmKiolvasasMaui
                     if (ocrResult.Success)
                     {
                         var adatok = OcrAdatokKinyeres(ocrResult.AllText);
+
                         // Ellenőrzés
                         List<string> hianyok = new();
                         if (string.IsNullOrWhiteSpace(adatok.datum)) hianyok.Add("Dátum");
@@ -87,49 +84,17 @@ namespace KmKiolvasasMaui
                             return;
                         }
 
-                        // Ha minden adat megvan → email küldés
-                        string tabla =
-                            $"Dátum: {adatok.datum}\n" +
-                            $"Pályaszám: {adatok.palyaszam}\n\n" +
-                            $"Napi km: {adatok.napiKm} km\n" +
-                            $"Összes km: {adatok.osszKm} km";
-
-                        if (vanNet)
+                        IdeiglenesAdat adat = new()
                         {
-                            await EmailKuld.KuldesAsync(
-                                "bozaim@bkv.hu",
-                                "Kiolvasott adatok",
-                                tabla);
+                            Datum = DateTime.Parse(adatok.datum),
+                            Palyaszam = int.Parse(adatok.palyaszam),
+                            Napi_km = int.Parse(adatok.napiKm),
+                            Ossz_km = int.Parse(adatok.osszKm)
+                        };
 
-                            await DisplayAlert("Siker", "Az adatok kiolvasva és az email elküldve.", "OK");
+                        await Adatbazis.MentIdeiglenesAsync(adat);
 
-                            KiolvasottAdat adat = new KiolvasottAdat
-                            {
-                                Datum = DateTime.Parse(adatok.datum),
-                                Palyaszam = int.Parse(adatok.palyaszam),
-                                Napi_km = int.Parse(adatok.napiKm),
-                                Ossz_km = int.Parse(adatok.osszKm),
-                                Email_kuldve = true
-                            };
-                            await Adatbazis.MentesAsync(adat);
-                        }
-                        else
-                        {
-                            KiolvasottAdat adat = new KiolvasottAdat
-                            {
-                                Datum = DateTime.Parse(adatok.datum),
-                                Palyaszam = int.Parse(adatok.palyaszam),
-                                Napi_km = int.Parse(adatok.napiKm),
-                                Ossz_km = int.Parse(adatok.osszKm),
-                                Email_kuldve = false
-                            };
-                            await Adatbazis.MentesAsync(adat);
-                            await DisplayAlert("Offline mentés", "Nincs internetkapcsolat, az adatokat mentettük az adatbázisba.", "OK");
-                        }
-
-
-
-                        await DisplayAlert("Siker", "Az adatok kiolvasva és az email megnyitva küldéshez.", "OK");
+                        await DisplayAlert("Mentve", "Az adatok ideiglenesen elmentve. Később emailben küldhetők.", "OK");
                     }
                 }
             }
@@ -138,6 +103,7 @@ namespace KmKiolvasasMaui
                 await DisplayAlert("Hiba", $"Hiba történt: {ex.Message}", "OK");
             }
         }
+
 
         private (string datum, string palyaszam, string napiKm, string osszKm) OcrAdatokKinyeres(string ocrText)
         {
@@ -172,7 +138,7 @@ namespace KmKiolvasasMaui
                            .ToArray();
 
             // 2) Dátum keresés (szigorú mintával: YYYY.MM.DD.)
-            var dm = Regex.Match(pre, @"\b\d{4}\.\d{2}\.\d{2}\.");
+            Match dm = Regex.Match(pre, @"\b\d{4}\.\d{2}\.\d{2}\.");
             if (dm.Success)
                 datum = dm.Value.Trim();
             else datum = DateTime.Today.ToString("yyyy.MM.dd.");
@@ -181,7 +147,7 @@ namespace KmKiolvasasMaui
             foreach (var sor in lines)
                 {
                     // csak 4-essel kezdődő, 4 számjegyű számokat keresünk
-                    var p = Regex.Match(sor, @"\b(4\d{3})\b");
+                    Match p = Regex.Match(sor, @"\b(4\d{3})\b");
                     if (p.Success)
                     {
                         var talalt = p.Groups[1].Value;
@@ -193,7 +159,7 @@ namespace KmKiolvasasMaui
 
             // 4) Fejlécek keresése (NAPI, OSSZES)
             // 4) Napi / Összes km keresés konkrét mintával
-            var napiM = Regex.Match(pre, @"MEGTETT\s*ÚT\s*=\s*(\d+)\s*KM", RegexOptions.IgnoreCase);
+            Match napiM = Regex.Match(pre, @"MEGTETT\s*ÚT\s*=\s*(\d+)\s*KM", RegexOptions.IgnoreCase);
             if (napiM.Success)
                 napiKm = napiM.Groups[1].Value;
 
@@ -202,7 +168,7 @@ namespace KmKiolvasasMaui
             {
                 for (int i = osszIdx; i < Math.Min(lines.Length, osszIdx + 5); i++)
                 {
-                    var m = Regex.Match(lines[i], @"MEGTETT\s*ÚT\s*=\s*(\d+)\s*KM", RegexOptions.IgnoreCase);
+                    Match m = Regex.Match(lines[i], @"MEGTETT\s*ÚT\s*=\s*(\d+)\s*KM", RegexOptions.IgnoreCase);
                     if (m.Success)
                     {
                         osszKm = m.Groups[1].Value;
@@ -216,7 +182,7 @@ namespace KmKiolvasasMaui
             {
                 if (HasonlotTartalmaz(sor, "MEGTETT", 2) || sor.Contains("MEGTETT"))
                 {
-                    var m = Regex.Match(sor, @"\b(\d{1,7})\b");
+                    Match m = Regex.Match(sor, @"\b(\d{1,7})\b");
                     if (m.Success)
                     {
                         if (string.IsNullOrEmpty(napiKm))
@@ -227,7 +193,7 @@ namespace KmKiolvasasMaui
                 }
                 else if (HasonlotTartalmaz(sor, "KM", 1) || sor.Contains("KM"))
                 {
-                    var m = Regex.Match(sor, @"\b(\d{1,7})\b");
+                    Match m = Regex.Match(sor, @"\b(\d{1,7})\b");
                     if (m.Success)
                     {
                         if (string.IsNullOrEmpty(napiKm))
@@ -241,7 +207,7 @@ namespace KmKiolvasasMaui
             // 6) Végső fallback: ha még hiányzik valamelyik, gyűjtsük össze az összes számot és heuristikusan osszuk szét
             if (string.IsNullOrEmpty(napiKm) || string.IsNullOrEmpty(osszKm))
             {
-                var allNums = Regex.Matches(pre, @"\b(\d{1,7})\b")
+                List<string> allNums = Regex.Matches(pre, @"\b(\d{1,7})\b")
                                    .Cast<Match>()
                                    .Select(m => m.Groups[1].Value)
                                    .Distinct()
@@ -284,7 +250,7 @@ namespace KmKiolvasasMaui
             if (string.IsNullOrEmpty(s)) return "";
             // eltávolítjuk az ékezeteket és uppercase
             string form = s.Normalize(NormalizationForm.FormD);
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (var ch in form)
             {
                 UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(ch);

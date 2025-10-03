@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using KmKiolvasasMaui;
+using Microsoft.Extensions.Logging;
 using Plugin.Maui.OCR;
 
 namespace KmKiolvasasMaui
