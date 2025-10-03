@@ -19,5 +19,9 @@
             Text="Email küldés oldal"
             Clicked="NavigalEmailOldal"
             HorizontalOptions="Fill" />
+        <Button 
+    Text="Mentett adatok"
+    Clicked="NavigalAdatokOldal"
+    HorizontalOptions="Fill" />
     </VerticalStackLayout>
 </ContentPage>

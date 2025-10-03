@@ -1,6 +1,4 @@
-﻿using KmKiolvasMaui;
-
-namespace KmKiolvasasMaui
+﻿namespace KmKiolvasasMaui
 {
     public partial class App : Application
     {

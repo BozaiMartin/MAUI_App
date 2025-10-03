@@ -4,7 +4,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Maui.Networking;
 using KmKiolvasasMaui.Adatbazis;
-using KmKiolvasMaui;
 
 namespace KmKiolvasasMaui
 {
@@ -16,20 +15,8 @@ namespace KmKiolvasasMaui
         {
             InitializeComponent();
             Adatbazis = new Adatbazis_Kezelo();
+            Inicializal();
         }
-        private async void OnOldalValasztva(object sender, EventArgs e)
-        {
-            var valasztott = OldalPicker.SelectedItem as string;
-
-            if (valasztott == "Email oldal")
-                await Navigation.PushAsync(new EmailOldal());
-            else if (valasztott == "Bejelentkezés oldal")
-                await Navigation.PushAsync(new BejelentkezesOldal());
-        }
-
-
-
-
         private async void Inicializal()
         {
             try
@@ -48,6 +35,8 @@ namespace KmKiolvasasMaui
             try
             {
                 await OcrPlugin.Default.InitAsync();
+                //string dbPath = Path.Combine(FileSystem.AppDataDirectory, "kmadatok.db");
+                //await DisplayAlert("DB path", dbPath, "OK");
             }
             catch (Exception ex)
             {
