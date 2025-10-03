@@ -108,7 +108,7 @@ namespace KmKiolvasasMaui
                         if (vanNet)
                         {
                             await EmailKuld.KuldesAsync(
-                                "pozsgaii@bkv.hu",
+                                "bozaim@bkv.hu",
                                 "Kiolvasott adatok",
                                 tabla);
 
