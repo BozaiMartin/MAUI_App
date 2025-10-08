@@ -11,6 +11,27 @@ namespace KmKiolvasasMaui
         {
             InitializeComponent();
         }
+        private async void Urites_Clicked(object sender, EventArgs e)
+        {
+            bool megerosites = await DisplayAlert(
+                "Megerősítés",
+                "Biztosan üríteni szeretnéd a kiolvasott adatok táblát? Az adatok végleg törlődnek, de az adatbázis fájl megmarad.",
+                "Igen, töröld",
+                "Mégsem");
+
+            if (!megerosites)
+                return;
+
+            try
+            {
+                await _db.TorolKiolvasottAdatokatAsync();
+                await DisplayAlert("Siker", "A KiolvasottAdat tábla sikeresen ürítve lett.", "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", $"Az adatbázis ürítése nem sikerült: {ex.Message}", "OK");
+            }
+        }
 
         private async void MutatIdeiglenes_Clicked(object sender, EventArgs e)
         {

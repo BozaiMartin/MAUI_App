@@ -34,6 +34,18 @@ namespace KmKiolvasasMaui.Adatbazis
         }
         #endregion
 
+        public async Task TorolKiolvasottAdatokatAsync()
+        {
+            try
+            {
+                await _db.DeleteAllAsync<KiolvasottAdat>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Hiba a KiolvasottAdat tábla ürítése közben: " + ex.Message);
+                throw;
+            }
+        }
 
         public async Task MentesAsync(KiolvasottAdat adat)
         {
