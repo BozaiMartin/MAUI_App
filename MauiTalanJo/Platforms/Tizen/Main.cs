@@ -10,7 +10,7 @@ namespace KmKiolvasasMaui
 
         static void Main(string[] args)
         {
-            var app = new Program();
+            Program app = new Program();
             app.Run(args);
         }
     }

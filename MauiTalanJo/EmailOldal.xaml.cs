@@ -30,19 +30,19 @@ namespace KmKiolvasasMaui
 
         private async void Kuldes_Clicked(object sender, EventArgs e)
         {
-            var lista = await _db.LekerdezesIdeiglenesAsync();
+            List<IdeiglenesAdat> lista = await _db.LekerdezesIdeiglenesAsync();
             if (lista.Count == 0) { await DisplayAlert("Info", "Nincs elküldhető adat.", "OK"); return; }
             // CSV készítés
-            StringBuilder csv = new StringBuilder();
+            StringBuilder csv = new();
             csv.AppendLine("Datum;Palyaszam;Napi_km;Ossz_km");
-            foreach (var a in lista)
+            foreach (IdeiglenesAdat a in lista)
                 csv.AppendLine($"{a.Datum:yyyy.MM.dd};{a.Palyaszam};{a.Napi_km};{a.Ossz_km}");
             // Email küldés (egyszerűsítve, csatolmány helyett szövegben)
             await EmailKuld.KuldesAsync("bozaim@bkv.hu", "Napi kiolvasott adatok", csv.ToString());
             // Ha sikeres → áthelyezés a fő adatbázisba
-            foreach (var a in lista)
+            foreach (IdeiglenesAdat a in lista)
             {
-                KiolvasottAdat vegleges = new KiolvasottAdat { Datum = a.Datum, Palyaszam = a.Palyaszam, Napi_km = a.Napi_km, Ossz_km = a.Ossz_km, Email_kuldve = true };
+                KiolvasottAdat vegleges = new() { Datum = a.Datum, Palyaszam = a.Palyaszam, Napi_km = a.Napi_km, Ossz_km = a.Ossz_km, Email_kuldve = true };
                 await _db.MentesAsync(vegleges);
             }
             // Ideiglenes törlése

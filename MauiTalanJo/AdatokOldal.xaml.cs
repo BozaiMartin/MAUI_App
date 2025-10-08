@@ -13,9 +13,9 @@ namespace KmKiolvasasMaui
         {
             base.OnAppearing();
 
-            var db = new Adatbazis_Kezelo();
+            Adatbazis_Kezelo db = new Adatbazis_Kezelo();
             await db.InicializalasAsync();
-            var lista = await db.LekerdezesAsync();
+            List<KiolvasottAdat> lista = await db.LekerdezesAsync();
 
             AdatokLista.ItemsSource = lista;
 

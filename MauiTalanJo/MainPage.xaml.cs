@@ -69,7 +69,7 @@ namespace KmKiolvasasMaui
                         var adatok = OcrAdatokKinyeres(ocrResult.AllText);
 
                         // Ellenőrzés
-                        List<string> hianyok = new();
+                        List<string> hianyok = [];
                         if (string.IsNullOrWhiteSpace(adatok.datum)) hianyok.Add("Dátum");
                         if (string.IsNullOrWhiteSpace(adatok.palyaszam)) hianyok.Add("Pályaszám");
                         if (string.IsNullOrWhiteSpace(adatok.napiKm)) hianyok.Add("Napi km");
@@ -118,7 +118,7 @@ namespace KmKiolvasasMaui
             // 1) Előfeldolgozás: nagybetű + gyakori OCR-hibák javítása token-szinten
             string pre = ocrText.ToUpperInvariant();
 
-            Dictionary<string, string> fixes = new Dictionary<string, string>
+            Dictionary<string, string> fixes = new()
             {
                 // km variánsok
                 {"KLM", "KM"}, {"K1M", "KM"}, {"K I M", "KM"}, {"K|M", "KM"}, {"KIR", "KM"}, {"K1R","KM"},
@@ -128,7 +128,7 @@ namespace KmKiolvasasMaui
                 {"MEGTET", "MEGTETT"}, {"MEGTETTIT", "MEGTETT"}, {"MEGTETT IT", "MEGTETT UT"}, {"MEGTETTUT", "MEGTETT UT"}
             };
 
-            foreach (var kv in fixes)
+            foreach (KeyValuePair<string, string> kv in fixes)
                 pre = Regex.Replace(pre, @"\b" + Regex.Escape(kv.Key) + @"\b", kv.Value, RegexOptions.IgnoreCase);
 
             // sorokra bontás
@@ -144,14 +144,13 @@ namespace KmKiolvasasMaui
             else datum = DateTime.Today.ToString("yyyy.MM.dd.");
 
             // 3) Pályaszám: első "tiszta" 3-5 jegyű szám a sorok között
-            foreach (var sor in lines)
+            foreach (string sor in lines)
                 {
                     // csak 4-essel kezdődő, 4 számjegyű számokat keresünk
                     Match p = Regex.Match(sor, @"\b(4\d{3})\b");
                     if (p.Success)
                     {
-                        var talalt = p.Groups[1].Value;
-
+                        string talalt = p.Groups[1].Value;
                         palyaszam = talalt;
                         break;
                     }
@@ -163,7 +162,7 @@ namespace KmKiolvasasMaui
             if (napiM.Success)
                 napiKm = napiM.Groups[1].Value;
 
-            var osszIdx = Array.FindIndex(lines, l => HasonlotTartalmaz(l, "OSSZES", 2));
+            int osszIdx = Array.FindIndex(lines, l => HasonlotTartalmaz(l, "OSSZES", 2));
             if (osszIdx >= 0)
             {
                 for (int i = osszIdx; i < Math.Min(lines.Length, osszIdx + 5); i++)
@@ -178,7 +177,7 @@ namespace KmKiolvasasMaui
             }
 
             // 5) Sorok átvizsgálása: explicit "MEGTETT" és "KM" sorok
-            foreach (var sor in lines)
+            foreach (string sor in lines)
             {
                 if (HasonlotTartalmaz(sor, "MEGTETT", 2) || sor.Contains("MEGTETT"))
                 {
@@ -251,7 +250,7 @@ namespace KmKiolvasasMaui
             // eltávolítjuk az ékezeteket és uppercase
             string form = s.Normalize(NormalizationForm.FormD);
             StringBuilder sb = new();
-            foreach (var ch in form)
+            foreach (char ch in form)
             {
                 UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(ch);
                 if (uc != UnicodeCategory.NonSpacingMark)
