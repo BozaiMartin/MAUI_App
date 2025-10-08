@@ -1,6 +1,6 @@
-﻿using KmKiolvasasMaui;
-using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Maui;
 using Plugin.Maui.OCR;
+using CommunityToolkit.Maui.Camera;
 
 namespace KmKiolvasasMaui
 {
@@ -12,6 +12,8 @@ namespace KmKiolvasasMaui
             builder
                 .UseMauiApp<App>()
                 .UseOcr()
+                .UseMauiCommunityToolkit()
+                .UseMauiCommunityToolkitCamera()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

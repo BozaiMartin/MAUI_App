@@ -14,8 +14,8 @@ namespace KmKiolvasasMaui
         {
             // E-mail üzenet összeállítása
             MimeMessage message = new();
-            //message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "pozsgaii@bkv.hu"));
-            message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "bozaim@bkv.hu"));
+            message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "pozsgaii@bkv.hu"));
+            //message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "bozaim@bkv.hu"));
             message.To.Add(new MailboxAddress("", to));
             message.Subject = subject;
 
@@ -30,9 +30,8 @@ namespace KmKiolvasasMaui
                 TextBody = $"Tisztelt Címzett!\n\nA {DateTime.Now:yyyy.MM.dd} napon kiolvasott adatok a csatolt CSV fájlban találhatók.\n\nÜdvözlettel:\nKm Kiolvasó alkalmazás"
             };
 
-
             // MIME-típus megadása a csatolmányhoz
-            ContentType contentType = new ContentType("text", "csv")
+            ContentType contentType = new("text", "csv")
             {
                 Charset = "utf-8",
                 Name = fileName

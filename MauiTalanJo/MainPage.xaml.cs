@@ -49,7 +49,23 @@ namespace KmKiolvasasMaui
 
         private async void PictureBtn_Clicked(object sender, EventArgs e)
         {
-            await KepFeldolgoz(async () => await MediaPicker.Default.CapturePhotoAsync());
+            // Régi MediaPicker verzió:
+            // await KepFeldolgoz(async () => await MediaPicker.Default.CapturePhotoAsync());
+
+            // Új CameraView-os megoldás
+            await Navigation.PushAsync(new CameraPage());
+        }
+        public async Task InvokeKepFeldolgozAsync(string kepPath)
+        {
+            try
+            {
+                FileResult? fakeFile = new(kepPath);
+                await KepFeldolgoz(() => Task.FromResult<FileResult?>(fakeFile));
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", $"A kép feldolgozása nem sikerült: {ex.Message}", "OK");
+            }
         }
 
         private async Task KepFeldolgoz(Func<Task<FileResult?>> kepValasztVagyKeszit)
