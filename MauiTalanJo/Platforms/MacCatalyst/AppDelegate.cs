@@ -1,5 +1,5 @@
 ﻿using Foundation;
-namespace KmKiolvasasMaui
+namespace KmKiolvasasMaui.Platforms.MacCatalyst
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

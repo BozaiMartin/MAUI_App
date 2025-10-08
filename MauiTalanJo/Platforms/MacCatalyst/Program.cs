@@ -1,4 +1,5 @@
-﻿using ObjCRuntime;
+﻿using KmKiolvasasMaui.Platforms.MacCatalyst;
+using ObjCRuntime;
 using UIKit;
 
 namespace KmKiolvasasMaui

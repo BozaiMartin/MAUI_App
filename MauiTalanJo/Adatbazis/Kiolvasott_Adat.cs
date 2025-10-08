@@ -11,7 +11,7 @@ namespace KmKiolvasasMaui.Adatbazis
         public int Napi_km { get; set; }
         public int Ossz_km { get; set; }
         public int Palyaszam { get; set; }
-        public bool Email_kuldve { get; set; }
+        public bool Email_kuldve { get; set; } = false;
 
         [Ignore]
         public PalyaszamInfo PalyaszamInfo { get; set; }

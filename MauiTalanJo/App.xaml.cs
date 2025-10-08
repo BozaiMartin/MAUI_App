@@ -8,6 +8,4 @@
             MainPage = new NavigationPage(new BejelentkezesOldal());
         }
     }
-
-
 }

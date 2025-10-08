@@ -20,7 +20,5 @@ namespace KmKiolvasasMaui
         {
             await Navigation.PushAsync(new AdatokOldal());
         }
-
-
     }
 }
