@@ -14,8 +14,8 @@ namespace KmKiolvasasMaui
         {
             // E-mail üzenet összeállítása
             MimeMessage message = new();
-            //message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "pozsgaii@bkv.hu"));
-            message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "bozaim@bkv.hu"));
+            message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "pozsgaii@bkv.hu"));
+            //message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", "bozaim@bkv.hu"));
             message.To.Add(new MailboxAddress("", to));
             message.Subject = subject;
 
