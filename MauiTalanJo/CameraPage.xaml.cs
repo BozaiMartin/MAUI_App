@@ -7,6 +7,7 @@ namespace KmKiolvasasMaui
 {
     public partial class CameraPage : ContentPage
     {
+        private bool KepetKeszit = false;
         public CameraPage()
         {
             InitializeComponent();
@@ -20,16 +21,23 @@ namespace KmKiolvasasMaui
 
         private async void OnCaptureClicked(object sender, EventArgs e)
         {
+            if (KepetKeszit)
+                return; 
+
+            KepetKeszit = true;
             try
             {
+                captureButton.IsEnabled = false;
                 await cameraView.CaptureImage(CancellationToken.None);
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Hiba", $"Kép készítés sikertelen: {ex.Message}", "OK");
+                KepetKeszit = false;
+                captureButton.IsEnabled = true;
             }
         }
-       
+
         private async void CameraView_MediaCaptured(object sender, MediaCapturedEventArgs e)
         {
             string? filePath = null;

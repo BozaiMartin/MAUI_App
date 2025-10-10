@@ -14,7 +14,8 @@
         VerticalOptions="FillAndExpand" />
 
         <!-- Fotó gomb -->
-        <Button Text="Kép készítése"
+        <Button x:Name="captureButton"
+            Text="Kép készítése"
             Clicked="OnCaptureClicked"
             VerticalOptions="End"
             HorizontalOptions="Center"

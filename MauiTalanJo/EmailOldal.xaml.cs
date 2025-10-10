@@ -51,6 +51,13 @@ namespace KmKiolvasasMaui
         {
             try
             {
+                NetworkAccess current = Connectivity.Current.NetworkAccess;
+                if (current != NetworkAccess.Internet)
+                {
+                    await DisplayAlert("Hiba", "Nincs internetkapcsolat! Az adatok küldéséhez csatlakozz hálózathoz.", "OK");
+                    return;
+                }
+
                 //  Ideiglenes adatok lekérdezése
                 List<IdeiglenesAdat> lista = await _db.LekerdezesIdeiglenesAsync();
                 if (lista.Count == 0)
