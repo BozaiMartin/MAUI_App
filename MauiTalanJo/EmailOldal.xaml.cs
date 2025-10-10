@@ -67,7 +67,8 @@ namespace KmKiolvasasMaui
 
                 // AUTOMATIKUS EMAIL KÜLDÉS
                 await EmailKuld.KuldesCsvAsync(
-                    "pozsgaii@bkv.hu",
+                    //"pozsgaii@bkv.hu",
+                    "bozaim@bkv.hu",
                     "Napi kiolvasott adatok",
                     csv.ToString()
                 );
