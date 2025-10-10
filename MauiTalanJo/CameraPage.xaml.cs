@@ -29,7 +29,7 @@ namespace KmKiolvasasMaui
                 await DisplayAlert("Hiba", $"Kép készítés sikertelen: {ex.Message}", "OK");
             }
         }
-
+       
         private async void CameraView_MediaCaptured(object sender, MediaCapturedEventArgs e)
         {
             string? filePath = null;
@@ -41,7 +41,7 @@ namespace KmKiolvasasMaui
                 filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
 
                 // Stream mentése memóriába, majd fájlba
-                using (MemoryStream memoryStream = new MemoryStream())
+                using (MemoryStream memoryStream = new())
                 {
                     await e.Media.CopyToAsync(memoryStream);
                     memoryStream.Position = 0;
@@ -72,7 +72,7 @@ namespace KmKiolvasasMaui
                         else if (root is MainPage main)
                         {
                             await main.InvokeKepFeldolgozAsync(filePath);
-                        }
+                        }   
                         else
                         {
                             await DisplayAlert("Hiba", "Nem található a fõoldal az OCR feldolgozáshoz.", "OK");

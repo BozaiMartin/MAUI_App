@@ -25,7 +25,7 @@ namespace KmKiolvasasMaui
             try
             {
                 await _db.TorolKiolvasottAdatokatAsync();
-                await DisplayAlert("Siker", "A KiolvasottAdat tábla sikeresen ürítve lett.", "OK");
+                await DisplayAlert("Információ", "Az adatábzis sikeresen ürítve lett.", "OK");
             }
             catch (Exception ex)
             {
@@ -88,7 +88,7 @@ namespace KmKiolvasasMaui
                 }
 
                 await _db.TorolIdeiglenesAsync();
-                await DisplayAlert("Siker", "Az adatok automatikusan elküldve és mentve a fő adatbázisba.", "OK");
+                await DisplayAlert("Információ", "Az adatok automatikusan elküldve és mentve a fő adatbázisba.", "OK");
             }
             catch (Exception ex)
             {

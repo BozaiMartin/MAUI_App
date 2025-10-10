@@ -44,7 +44,7 @@ namespace KmKiolvasasMaui
 
         private async void SelectBtn_Clicked(object sender, EventArgs e)
         {
-            await KepFeldolgoz(async () => await MediaPicker.Default.PickPhotoAsync());
+            await KepFeldolgoz(async () => await MediaPicker.Default.PickPhotoAsync(), isCamera: false);
         }
 
         private async void PictureBtn_Clicked(object sender, EventArgs e)
@@ -60,7 +60,7 @@ namespace KmKiolvasasMaui
             try
             {
                 FileResult? fakeFile = new(kepPath);
-                await KepFeldolgoz(() => Task.FromResult<FileResult?>(fakeFile));
+                await KepFeldolgoz(() => Task.FromResult<FileResult?>(fakeFile), isCamera: true);
             }
             catch (Exception ex)
             {
@@ -68,58 +68,103 @@ namespace KmKiolvasasMaui
             }
         }
 
-        private async Task KepFeldolgoz(Func<Task<FileResult?>> kepValasztVagyKeszit)
+        private async Task KepFeldolgoz(Func<Task<FileResult?>> kepValasztVagyKeszit, bool isCamera)
         {
             try
             {
                 FileResult? kepEredmeny = await kepValasztVagyKeszit();
-                if (kepEredmeny != null)
+                if (kepEredmeny == null)
+                    return;
+
+                using Stream imageAsStream = await kepEredmeny.OpenReadAsync();
+                byte[] imageAsBytes = new byte[imageAsStream.Length];
+                await imageAsStream.ReadAsync(imageAsBytes);
+                OcrResult? ocrResult = await OcrPlugin.Default.RecognizeTextAsync(imageAsBytes, true);
+
+                if (!ocrResult.Success)
                 {
-                    using Stream imageAsStream = await kepEredmeny.OpenReadAsync();
-                    byte[] imageAsBytes = new byte[imageAsStream.Length];
-                    await imageAsStream.ReadAsync(imageAsBytes);
-                    OcrResult? ocrResult = await OcrPlugin.Default.RecognizeTextAsync(imageAsBytes, true);
+                    await DisplayAlert("Hiba", "Nem sikerült szöveget felismerni a képen.", "OK");
+                    await UjraMegnyitasAsync(isCamera);
+                    return;
+                }
 
-                    if (ocrResult.Success)
+                var adatok = OcrAdatokKinyeres(ocrResult.AllText);
+
+                // Ellenőrzés – minden mező megvan-e
+                List<string> hianyok = [];
+                if (string.IsNullOrWhiteSpace(adatok.datum)) hianyok.Add("Dátum");
+                if (string.IsNullOrWhiteSpace(adatok.palyaszam)) hianyok.Add("Pályaszám");
+                if (string.IsNullOrWhiteSpace(adatok.napiKm)) hianyok.Add("Napi km");
+                if (string.IsNullOrWhiteSpace(adatok.osszKm)) hianyok.Add("Összes km");
+
+                if (hianyok.Count != 0)
+                {
+                    string msg = "A következő adatok hiányoznak: " +
+                                 string.Join(", ", hianyok) +
+                                 "\nKérlek, próbáld újra!";
+                    await DisplayAlert("Hiányzó adatok", msg, "OK");
+                    await UjraMegnyitasAsync(isCamera);
+                    return;
+                }
+
+                string osszegzes =
+                    $"Dátum: {adatok.datum}\n" +
+                    $"Pályaszám: {adatok.palyaszam}\n" +
+                    $"Napi km: {adatok.napiKm}\n" +
+                    $"Összes km: {adatok.osszKm}\n\n" +
+                    "Szeretnéd ezeket az adatokat elmenteni az email küldéshez?";
+
+                bool menteni = await DisplayAlert("Felismert adatok", osszegzes, "Mentés", "Elvetés");
+
+                if (menteni)
+                {
+                    IdeiglenesAdat adat = new()
                     {
-                        var adatok = OcrAdatokKinyeres(ocrResult.AllText);
+                        Datum = DateTime.Parse(adatok.datum),
+                        Palyaszam = int.Parse(adatok.palyaszam),
+                        Napi_km = int.Parse(adatok.napiKm),
+                        Ossz_km = int.Parse(adatok.osszKm)
+                    };
 
-                        // Ellenőrzés
-                        List<string> hianyok = [];
-                        if (string.IsNullOrWhiteSpace(adatok.datum)) hianyok.Add("Dátum");
-                        if (string.IsNullOrWhiteSpace(adatok.palyaszam)) hianyok.Add("Pályaszám");
-                        if (string.IsNullOrWhiteSpace(adatok.napiKm)) hianyok.Add("Napi km");
-                        if (string.IsNullOrWhiteSpace(adatok.osszKm)) hianyok.Add("Összes km");
-
-                        if (hianyok.Count != 0)
-                        {
-                            string msg = "A következő adatok hiányoznak: " +
-                                         string.Join(", ", hianyok) +
-                                         "\nKérlek, fényképezd újra!";
-                            await DisplayAlert("Hiányzó adatok", msg, "OK");
-                            return;
-                        }
-
-                        IdeiglenesAdat adat = new()
-                        {
-                            Datum = DateTime.Parse(adatok.datum),
-                            Palyaszam = int.Parse(adatok.palyaszam),
-                            Napi_km = int.Parse(adatok.napiKm),
-                            Ossz_km = int.Parse(adatok.osszKm)
-                        };
-
-                        await Adatbazis.MentIdeiglenesAsync(adat);
-
-                        await DisplayAlert("Mentve", "Az adatok ideiglenesen elmentve. Később emailben küldhetők.", "OK");
-                    }
+                    await Adatbazis.MentIdeiglenesAsync(adat);
+                    await DisplayAlert("Információ", "Az adatok elmentve az email küldéshez.", "OK");
+                }
+                else
+                {
+                    await DisplayAlert("Információ", "Az adatok nem lettek elmentve.", "OK");
+                    await UjraMegnyitasAsync(isCamera);
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Hiba", $"Hiba történt: {ex.Message}", "OK");
+                await DisplayAlert("Hiba", $"Hiba történt a feldolgozás során: {ex.Message}", "OK");
+                await UjraMegnyitasAsync(isCamera);
             }
         }
 
+        private async Task UjraMegnyitasAsync(bool isCamera)
+        {
+            if (isCamera)
+            {
+                try
+                {
+                    if (Navigation.NavigationStack.Count > 1)
+                        await Navigation.PopAsync();
+
+                    await Task.Delay(10);
+                    await Navigation.PushAsync(new CameraPage());
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Hiba", $"A kamera újraindítása sikertelen: {ex.Message}", "OK");
+                }
+            }
+            else
+            {
+                await Task.Delay(200);
+                await KepFeldolgoz(async () => await MediaPicker.Default.PickPhotoAsync(), isCamera: false);
+            }
+        }
 
         private (string datum, string palyaszam, string napiKm, string osszKm) OcrAdatokKinyeres(string ocrText)
         {
