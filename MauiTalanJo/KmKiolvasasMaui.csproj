@@ -61,7 +61,10 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\Images\tram_logo.png" ForegroundFile="Resources\Images\tram_logo.png" Color="#FFD600" />
+		<MauiIcon Include="Resources\Images\tram_logo - Copy.png">
+		  <Color>#FFD600</Color>
+		</MauiIcon>
+		<MauiIcon Include="Resources\Images\tram_logo.png" Color="#FFD600" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Images\tram_logo.png" Color="#FFD600" BaseSize="128,128" />
@@ -75,6 +78,10 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiImage Remove="Resources\Images\tram_logo - Copy.png" />
 	</ItemGroup>
 
 	<ItemGroup>
