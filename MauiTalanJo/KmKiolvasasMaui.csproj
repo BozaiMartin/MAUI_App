@@ -61,9 +61,6 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\Images\tram_logo - Copy.png">
-		  <Color>#FFD600</Color>
-		</MauiIcon>
 		<MauiIcon Include="Resources\Images\tram_logo.png" Color="#FFD600" />
 
 		<!-- Splash Screen -->
