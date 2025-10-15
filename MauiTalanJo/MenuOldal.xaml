@@ -6,17 +6,17 @@
 
     <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
         <Label 
-            Text="Jelentkezzen be."
+            Text="Menü"
             FontSize="24"
             HorizontalOptions="Center" />
 
         <Button 
-            Text="Beolvasás oldal"
+            Text="Beolvasás"
             Clicked="NavigalMainPage"
             HorizontalOptions="Fill" />
 
         <Button 
-            Text="Email küldés oldal"
+            Text="Email küldés"
             Clicked="NavigalEmailOldal"
             HorizontalOptions="Fill" />
         <Button 

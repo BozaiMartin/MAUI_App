@@ -127,11 +127,9 @@ namespace KmKiolvasasMaui
                     };
 
                     await Adatbazis.MentIdeiglenesAsync(adat);
-                    await DisplayAlert("Információ", "Az adatok elmentve az email küldéshez.", "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Információ", "Az adatok nem lettek elmentve.", "OK");
                     await UjraMegnyitasAsync(isCamera);
                 }
             }
