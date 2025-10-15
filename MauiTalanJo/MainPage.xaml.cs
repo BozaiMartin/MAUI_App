@@ -107,6 +107,29 @@ namespace KmKiolvasasMaui
                     return;
                 }
 
+                IdeiglenesAdat adat = new()
+                {
+                    Datum = DateTime.Parse(adatok.datum),
+                    Palyaszam = int.Parse(adatok.palyaszam),
+                    Napi_km = int.Parse(adatok.napiKm),
+                    Ossz_km = int.Parse(adatok.osszKm)
+                };
+
+                bool duplikatum = await Adatbazis.EllenorizDuplikatumAsync(
+                    adat.Datum,
+                    adat.Palyaszam,
+                    adat.Napi_km,
+                    adat.Ossz_km);
+
+                if (duplikatum)
+                {
+                    await DisplayAlert(
+                        "Figyelmeztetés",
+                        $"A(z) {adat.Palyaszam} pályaszámhoz már létezik adat {adat.Datum:yyyy.MM.dd}-én.",
+                        "OK");
+                    return;
+                }
+
                 string osszegzes =
                     $"Dátum: {adatok.datum}\n" +
                     $"Pályaszám: {adatok.palyaszam}\n" +
@@ -118,14 +141,6 @@ namespace KmKiolvasasMaui
 
                 if (menteni)
                 {
-                    IdeiglenesAdat adat = new()
-                    {
-                        Datum = DateTime.Parse(adatok.datum),
-                        Palyaszam = int.Parse(adatok.palyaszam),
-                        Napi_km = int.Parse(adatok.napiKm),
-                        Ossz_km = int.Parse(adatok.osszKm)
-                    };
-
                     await Adatbazis.MentIdeiglenesAsync(adat);
                 }
                 else

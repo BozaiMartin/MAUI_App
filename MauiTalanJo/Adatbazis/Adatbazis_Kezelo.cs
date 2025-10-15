@@ -32,6 +32,25 @@ namespace KmKiolvasasMaui.Adatbazis
         {
             await _db.DeleteAllAsync<IdeiglenesAdat>();
         }
+        public async Task<bool> EllenorizDuplikatumAsync(DateTime datum, int palyaszam, int napiKm, int osszKm)
+        {
+            DateTime kezdet = datum.Date;
+            DateTime veg = datum.Date.AddDays(1);
+
+            IdeiglenesAdat? letezo = await _db.Table<IdeiglenesAdat>()
+                .Where(x => x.Palyaszam == palyaszam && x.Datum >= kezdet && x.Datum < veg)
+                .FirstOrDefaultAsync();
+
+            if (letezo == null)
+                return false;
+
+            if (letezo.Napi_km != napiKm || letezo.Ossz_km != osszKm)
+                return false;
+
+            return true;
+        }
+
+
         #endregion
 
         public async Task TorolKiolvasottAdatokatAsync()
