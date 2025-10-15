@@ -1,8 +1,8 @@
 namespace KmKiolvasasMaui
 {
-    public partial class BejelentkezesOldal : ContentPage
+    public partial class MenuOldal : ContentPage
     {
-        public BejelentkezesOldal()
+        public MenuOldal()
         {
             InitializeComponent();
         }

@@ -102,6 +102,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="MenuOldal.xaml.cs">
+	    <DependentUpon>MenuOldal.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="MainPage.xaml.cs">
 	    <DependentUpon>MainPage.xaml</DependentUpon>
 	  </Compile>
@@ -111,7 +114,7 @@
 	  <MauiXaml Update="AdatokOldal.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="BejelentkezesOldal.xaml">
+	  <MauiXaml Update="MenuOldal.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="CameraPage.xaml">
