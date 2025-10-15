@@ -5,7 +5,7 @@
              Title="Email küldés">
 
     <VerticalStackLayout Padding="20" Spacing="15">
-        <Button Text="Ideiglenes adatok megtekintése" Clicked="MutatIdeiglenes_Clicked"/>
+        <Button Text="Email tartalom" Clicked="MutatIdeiglenes_Clicked"/>
         <Button Text="Adatok elküldése emailben" Clicked="Kuldes_Clicked"/>
         <Button
     Text="Adatbázis ürítése"
