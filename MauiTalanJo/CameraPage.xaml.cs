@@ -1,4 +1,4 @@
-using CommunityToolkit.Maui.Core;
+ï»¿using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Camera;
 using KmKiolvasasMaui.Adatbazis;
@@ -8,6 +8,9 @@ namespace KmKiolvasasMaui
     public partial class CameraPage : ContentPage
     {
         private bool isCapturing = false;
+        private bool allDataFound = false;
+        private int retryCount = 0;
+        private const int MaxRetries = 10; // biztonsÃ¡gi limit
 
         public CameraPage()
         {
@@ -21,16 +24,31 @@ namespace KmKiolvasasMaui
             var status = await Permissions.RequestAsync<Permissions.Camera>();
             if (status != PermissionStatus.Granted)
             {
-                await DisplayAlert("Engedély szükséges", "A kamera használatához engedély szükséges.", "OK");
                 await Navigation.PopAsync();
                 return;
             }
 
-            // Kis várakozás, hogy a kamera elinduljon
+            // kis kÃ©sleltetÃ©s, amÃ­g a kamera inicializÃ¡lÃ³dik
             await Task.Delay(1000);
+            await StartAutoCaptureLoop();
+        }
 
-            // Automatikus kép készítés
-            await CaptureAutomatically();
+        private async Task StartAutoCaptureLoop()
+        {
+            allDataFound = false;
+            retryCount = 0;
+
+            while (!allDataFound && retryCount < MaxRetries)
+            {
+                retryCount++;
+                await CaptureAutomatically();
+                // kis vÃ¡rakozÃ¡s az OCR feldolgozÃ¡sra
+                await Task.Delay(2500);
+            }
+
+            // ha mÃ¡r minden adat megvan, visszatÃ©r a fÅ‘oldalra
+            if (allDataFound)
+                await SafeBack();
         }
 
         private async Task CaptureAutomatically()
@@ -39,14 +57,16 @@ namespace KmKiolvasasMaui
                 return;
 
             isCapturing = true;
-
             try
             {
                 await cameraView.CaptureImage(CancellationToken.None);
             }
-            catch (Exception ex)
+            catch
             {
-                await DisplayAlert("Hiba", $"Kép készítés sikertelen: {ex.Message}", "OK");
+                // kamera hiba â†’ megprÃ³bÃ¡lja Ãºjra
+            }
+            finally
+            {
                 isCapturing = false;
             }
         }
@@ -68,45 +88,37 @@ namespace KmKiolvasasMaui
                     await memoryStream.CopyToAsync(fileStream);
                 }
 
+                // OCR feldolgozÃ¡s a fÅ‘oldalon
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     try
                     {
                         Page? root = Application.Current?.MainPage;
+                        MainPage? main = null;
 
                         if (root is NavigationPage nav)
+                            main = nav.Navigation.NavigationStack.OfType<MainPage>().FirstOrDefault();
+                        else if (root is Shell shell)
+                            main = shell.CurrentPage as MainPage;
+                        else if (root is MainPage mp)
+                            main = mp;
+
+                        if (main != null)
                         {
-                            if (nav.Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainNav)
-                                await mainNav.InvokeKepFeldolgozAsync(filePath);
-                            else
-                                await DisplayAlert("Hiba", "Nem található a fõoldal a navigációs veremben.", "OK");
-                        }
-                        else if (root is Shell shell &&
-                                 shell.CurrentPage is MainPage shellMain)
-                        {
-                            await shellMain.InvokeKepFeldolgozAsync(filePath);
-                        }
-                        else if (root is MainPage main)
-                        {
-                            await main.InvokeKepFeldolgozAsync(filePath);
-                        }
-                        else
-                        {
-                            await DisplayAlert("Hiba", "Nem található a fõoldal az OCR feldolgozáshoz.", "OK");
+                            bool success = await main.InvokeKepFeldolgozAutomatikusAsync(filePath);
+                            if (success)
+                                allDataFound = true;
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        await DisplayAlert("Hiba", $"Feldolgozás közben hiba: {ex.Message}", "OK");
+                        // OCR feldolgozÃ¡si hiba â†’ Ãºjra prÃ³bÃ¡lkozik
                     }
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await DisplayAlert("Hiba", $"Kép feldolgozási hiba: {ex.Message}", "OK");
-                });
+                // fÃ¡jlhiba â†’ Ãºjra prÃ³bÃ¡lkozik
             }
             finally
             {
@@ -116,17 +128,20 @@ namespace KmKiolvasasMaui
                         File.Delete(filePath);
                 }
                 catch { }
-
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    try
-                    {
-                        if (Navigation.NavigationStack.Count > 1)
-                            await Navigation.PopAsync();
-                    }
-                    catch { }
-                });
             }
+        }
+
+        private async Task SafeBack()
+        {
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                try
+                {
+                    if (Navigation.NavigationStack.Count > 1)
+                        await Navigation.PopAsync();
+                }
+                catch { }
+            });
         }
     }
 }
