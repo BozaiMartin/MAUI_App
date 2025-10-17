@@ -7,7 +7,8 @@ namespace KmKiolvasasMaui
 {
     public partial class CameraPage : ContentPage
     {
-        private bool KepetKeszit = false;
+        private bool isCapturing = false;
+
         public CameraPage()
         {
             InitializeComponent();
@@ -16,25 +17,37 @@ namespace KmKiolvasasMaui
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await Permissions.RequestAsync<Permissions.Camera>();
+
+            var status = await Permissions.RequestAsync<Permissions.Camera>();
+            if (status != PermissionStatus.Granted)
+            {
+                await DisplayAlert("Engedély szükséges", "A kamera használatához engedély szükséges.", "OK");
+                await Navigation.PopAsync();
+                return;
+            }
+
+            // Kis várakozás, hogy a kamera elinduljon
+            await Task.Delay(1000);
+
+            // Automatikus kép készítés
+            await CaptureAutomatically();
         }
 
-        private async void OnCaptureClicked(object sender, EventArgs e)
+        private async Task CaptureAutomatically()
         {
-            if (KepetKeszit)
-                return; 
+            if (isCapturing)
+                return;
 
-            KepetKeszit = true;
+            isCapturing = true;
+
             try
             {
-                captureButton.IsEnabled = false;
                 await cameraView.CaptureImage(CancellationToken.None);
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Hiba", $"Kép készítés sikertelen: {ex.Message}", "OK");
-                KepetKeszit = false;
-                captureButton.IsEnabled = true;
+                isCapturing = false;
             }
         }
 
@@ -44,11 +57,9 @@ namespace KmKiolvasasMaui
 
             try
             {
-                // Ideiglenes fájlnév
                 string fileName = $"foto_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
                 filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
 
-                // Stream mentése memóriába, majd fájlba
                 using (MemoryStream memoryStream = new())
                 {
                     await e.Media.CopyToAsync(memoryStream);
@@ -57,7 +68,6 @@ namespace KmKiolvasasMaui
                     await memoryStream.CopyToAsync(fileStream);
                 }
 
-                //  OCR feldolgozás hívása a MainPage-bõl (bármilyen MAUI szerkezet esetén)
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     try
@@ -66,7 +76,6 @@ namespace KmKiolvasasMaui
 
                         if (root is NavigationPage nav)
                         {
-                            // ha NavigationPage-ben vagyunk, próbáljuk megkeresni a MainPage-et
                             if (nav.Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainNav)
                                 await mainNav.InvokeKepFeldolgozAsync(filePath);
                             else
@@ -80,7 +89,7 @@ namespace KmKiolvasasMaui
                         else if (root is MainPage main)
                         {
                             await main.InvokeKepFeldolgozAsync(filePath);
-                        }   
+                        }
                         else
                         {
                             await DisplayAlert("Hiba", "Nem található a fõoldal az OCR feldolgozáshoz.", "OK");
@@ -101,18 +110,13 @@ namespace KmKiolvasasMaui
             }
             finally
             {
-                // Fájl törlése (ha létezik)
                 try
                 {
                     if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
                         File.Delete(filePath);
                 }
-                catch
-                {
-                    // ha nem sikerül, nem baj — csak ne omljon le
-                }
+                catch { }
 
-                //  Biztonságos visszalépés a fõoldalra
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     try
@@ -120,17 +124,9 @@ namespace KmKiolvasasMaui
                         if (Navigation.NavigationStack.Count > 1)
                             await Navigation.PopAsync();
                     }
-                    catch
-                    {
-                        // ha a Navigation stack épp üres, nem baj
-                    }
+                    catch { }
                 });
             }
-        }
-
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
         }
     }
 }
