@@ -74,10 +74,10 @@ namespace KmKiolvasasMaui
 
                 // AUTOMATIKUS EMAIL KÜLDÉS
                 await EmailKuld.KuldesCsvAsync(
-    to: "bozaim@bkv.hu",
-    subject: $"Napi kiolvasott adatok – {DateTime.Now:yyyy.MM.dd}",
-    csvTartalom: csv.ToString()
-);
+                    to: "pozsgaii@bkv.hu",
+                    subject: $"Napi kiolvasott adatok – {DateTime.Now:yyyy.MM.dd}",
+                    csvTartalom: csv.ToString()
+                    );
 
                 // Siker esetén mentés a fő adatbázisba
                 foreach (IdeiglenesAdat a in lista)
