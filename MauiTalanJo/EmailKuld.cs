@@ -7,16 +7,11 @@ namespace KmKiolvasasMaui
 {
     public static class EmailKuld
     {
-        // --- KONFIG --- (tedd át később beállításba / SecureStorage-be) -----------------
         private const string GmailUser = "bozaimartin@gmail.com";     // Gmail címed (hiteles feladó)
         private const string GmailAppPassword = "rdyt vhaq bepo ikzz"; // Gmail alkalmazásjelszó
         private const string ReplyToNev = "Km Kiolvasás (BKV)";
         private const string ReplyToEmail = "bozaim@bkv.hu";           // Válaszcím a BKV-s postafiókra
-        // ---------------------------------------------------------------------------------
 
-        /// <summary>
-        /// CSV fájl küldése automatikusan Gmailen keresztül (From = Gmail, Reply-To = BKV).
-        /// </summary>
         public static async Task KuldesCsvAsync(string to, string subject, string csvTartalom)
         {
             // 1) MIME üzenet összeállítás
@@ -32,15 +27,25 @@ namespace KmKiolvasasMaui
             File.WriteAllText(filePath, csvTartalom, Encoding.UTF8);
 
             // 3) Törzs + csatolmány
-            var builder = new BodyBuilder
+            BodyBuilder builder = new()
             {
                 TextBody =
-                    $"Tisztelt Címzett!\n\n" +
-                    $"A {DateTime.Now:yyyy.MM.dd} napon kiolvasott adatok a csatolt CSV fájlban találhatók.\n\n" +
-                    $"Üdvözlettel:\nKm Kiolvasó alkalmazás"
+                "Tisztelt Kolléga!\n\n" +
+                $"A {DateTime.Now:yyyyMMdd_HH} napon kiolvasott kilométer-adatokat a mellékelt CSV fájlban találja. " +
+                "A dokumentumban minden jármű napi és összes futásteljesítménye szerepel a " +
+                "kiolvasás időpontjának megfelelően.\n\n" +
+                "Kérjük, a mellékletet csak belső felhasználásra kezelje, és továbbítsa a " +
+                "megfelelő feldolgozási helyre, ha szükséges.\n\n" +
+                "Amennyiben a fájl megnyitása vagy az adatok feldolgozása során bármilyen " +
+                "problémát tapasztal, kérem, jelezze a Km Kiolvasás rendszergazdájának.\n\n" +
+                "Köszönjük az együttműködést és jó munkát kívánunk!\n\n" +
+                "Üdvözlettel:\n" +
+                "Km Kiolvasó alkalmazás\n" +
+                "BKV Zrt.\n"
             };
 
-            var contentType = new ContentType("text", "csv")
+
+            ContentType contentType = new("text", "csv")
             {
                 Charset = "utf-8",
                 Name = fileName
@@ -53,13 +58,10 @@ namespace KmKiolvasasMaui
             //    (csak a revocation check-et kapcsoljuk ki; a többi validáció megmarad)
             try
             {
-                using var client = new SmtpClient
+                using SmtpClient client = new()
                 {
                     CheckCertificateRevocation = false // OCSP/CRL hiba megkerülése
                 };
-
-                // NE használj mindenre-igaz callbacket!
-                // client.ServerCertificateValidationCallback = (s, c, h, e) => true;  // TILOS
 
                 // Első próbálkozás: StartTLS (587)
                 await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
@@ -71,7 +73,7 @@ namespace KmKiolvasasMaui
             catch (Exception)
             {
                 // Fallback: SSL a 465-ös porton
-                using var client = new SmtpClient
+                using SmtpClient client = new()
                 {
                     CheckCertificateRevocation = false
                 };
