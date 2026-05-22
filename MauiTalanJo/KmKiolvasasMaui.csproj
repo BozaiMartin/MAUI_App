@@ -52,6 +52,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<CheckEolWorkloads>false</CheckEolWorkloads>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>

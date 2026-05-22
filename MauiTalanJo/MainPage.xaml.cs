@@ -15,10 +15,10 @@ namespace KmKiolvasasMaui
         {
             InitializeComponent();
             Adatbazis = new Adatbazis_Kezelo();
-            _ = Inicializal();
+            _ = MainPage.Inicializal();
         }
 
-        private async Task Inicializal()
+        private static async Task Inicializal()
         {
             try
             {
@@ -45,7 +45,7 @@ namespace KmKiolvasasMaui
 
         private async void SelectBtn_Clicked(object sender, EventArgs e)
         {
-            await KepFeldolgoz(async () => await MediaPicker.Default.PickPhotoAsync(), isCamera: false);
+            await MainPage.KepFeldolgoz(async () => await MediaPicker.Default.PickPhotoAsync(), isCamera: false);
         }
 
         private async void PictureBtn_Clicked(object sender, EventArgs e)
@@ -53,12 +53,12 @@ namespace KmKiolvasasMaui
             await Navigation.PushAsync(new CameraPage());
         }
 
-        public async Task InvokeKepFeldolgozAsync(string kepPath)
+        public static async Task InvokeKepFeldolgozAsync(string kepPath)
         {
             try
             {
                 FileResult? fakeFile = new(kepPath);
-                await KepFeldolgoz(() => Task.FromResult<FileResult?>(fakeFile), isCamera: true);
+                await MainPage.KepFeldolgoz(() => Task.FromResult<FileResult?>(fakeFile), isCamera: true);
             }
             catch
             {
@@ -66,7 +66,7 @@ namespace KmKiolvasasMaui
             }
         }
 
-        private async Task KepFeldolgoz(Func<Task<FileResult?>> kepValasztVagyKeszit, bool isCamera)
+        private static async Task KepFeldolgoz(Func<Task<FileResult?>> kepValasztVagyKeszit, bool isCamera)
         {
             try
             {
@@ -80,23 +80,23 @@ namespace KmKiolvasasMaui
 
                 OcrResult? ocrResult = await OcrPlugin.Default.RecognizeTextAsync(imageAsBytes, true);
                 if (ocrResult == null || !ocrResult.Success || string.IsNullOrWhiteSpace(ocrResult.AllText))
-                    return; // nincs adat → csendben kilép
+                    return; // nincs adat -> csendben kilép
 
-                var adatok = OcrAdatokKinyeres(ocrResult.AllText);
+                var (datum, palyaszam, napiKm, osszKm) = MainPage.OcrAdatokKinyeres(ocrResult.AllText);
 
                 // ha nincs minden adat, akkor nem mentünk, csak kilépünk
-                if (string.IsNullOrWhiteSpace(adatok.datum) ||
-                    string.IsNullOrWhiteSpace(adatok.palyaszam) ||
-                    string.IsNullOrWhiteSpace(adatok.napiKm) ||
-                    string.IsNullOrWhiteSpace(adatok.osszKm))
+                if (string.IsNullOrWhiteSpace(datum) ||
+                    string.IsNullOrWhiteSpace(palyaszam) ||
+                    string.IsNullOrWhiteSpace(napiKm) ||
+                    string.IsNullOrWhiteSpace(osszKm))
                     return;
 
                 IdeiglenesAdat adat = new()
                 {
-                    Datum = DateTime.Parse(adatok.datum),
-                    Palyaszam = int.Parse(adatok.palyaszam),
-                    Napi_km = int.Parse(adatok.napiKm),
-                    Ossz_km = int.Parse(adatok.osszKm)
+                    Datum = DateTime.Parse(datum),
+                    Palyaszam = int.Parse(palyaszam),
+                    Napi_km = int.Parse(napiKm),
+                    Ossz_km = int.Parse(osszKm)
                 };
 
                 bool duplikatum = await Adatbazis.EllenorizDuplikatumAsync(
@@ -106,7 +106,7 @@ namespace KmKiolvasasMaui
                     adat.Ossz_km);
 
                 if (duplikatum)
-                    return; // már létezett → nem mentjük újra
+                    return; // már létezett -> nem mentjük újra
 
                 await Adatbazis.MentIdeiglenesAsync(adat);
             }
@@ -136,12 +136,12 @@ namespace KmKiolvasasMaui
             else
             {
                 await Task.Delay(200);
-                await KepFeldolgoz(async () => await MediaPicker.Default.PickPhotoAsync(), isCamera: false);
+                await MainPage.KepFeldolgoz(async () => await MediaPicker.Default.PickPhotoAsync(), isCamera: false);
             }
         }
 
-        // ----------- OCR adatkinyerés marad, változtatás nélkül -----------
-        private (string datum, string palyaszam, string napiKm, string osszKm) OcrAdatokKinyeres(string ocrText)
+        // ----------- OCR adatkinyerés -----------
+        private static (string datum, string palyaszam, string napiKm, string osszKm) OcrAdatokKinyeres(string ocrText)
         {
             string datum = "";
             string palyaszam = "";
@@ -161,8 +161,8 @@ namespace KmKiolvasasMaui
             foreach (var kv in fixes)
                 pre = Regex.Replace(pre, @"\b" + Regex.Escape(kv.Key) + @"\b", kv.Value, RegexOptions.IgnoreCase);
 
-            string[] lines = pre.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(l => l.Trim()).Where(l => !string.IsNullOrWhiteSpace(l)).ToArray();
+            string[] lines = [.. pre.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+                .Select(l => l.Trim()).Where(l => !string.IsNullOrWhiteSpace(l))];
 
             Match dm = Regex.Match(pre, @"\b\d{4}\.\d{2}\.\d{2}\.");
             if (dm.Success)
@@ -225,12 +225,11 @@ namespace KmKiolvasasMaui
 
             if (string.IsNullOrEmpty(napiKm) || string.IsNullOrEmpty(osszKm))
             {
-                List<string> allNums = Regex.Matches(pre, @"\b(\d{1,7})\b")
+                List<string> allNums = [.. Regex.Matches(pre, @"\b(\d{1,7})\b")
                     .Cast<Match>()
                     .Select(m => m.Groups[1].Value)
                     .Distinct()
-                    .Where(s => s != palyaszam && !s.StartsWith("202"))
-                    .ToList();
+                    .Where(s => s != palyaszam && !s.StartsWith("202"))];
 
                 if (allNums.Count > 0 && string.IsNullOrEmpty(napiKm))
                 {
@@ -323,22 +322,22 @@ namespace KmKiolvasasMaui
                 if (ocrResult == null || !ocrResult.Success || string.IsNullOrWhiteSpace(ocrResult.AllText))
                     return false;
 
-                var adatok = OcrAdatokKinyeres(ocrResult.AllText);
+                var (datum, palyaszam, napiKm, osszKm) = MainPage.OcrAdatokKinyeres(ocrResult.AllText);
 
                 // ha bármelyik adat hiányzik, újrafotózás
-                if (string.IsNullOrWhiteSpace(adatok.datum) ||
-                    string.IsNullOrWhiteSpace(adatok.palyaszam) ||
-                    string.IsNullOrWhiteSpace(adatok.napiKm) ||
-                    string.IsNullOrWhiteSpace(adatok.osszKm))
+                if (string.IsNullOrWhiteSpace(datum) ||
+                    string.IsNullOrWhiteSpace(palyaszam) ||
+                    string.IsNullOrWhiteSpace(napiKm) ||
+                    string.IsNullOrWhiteSpace(osszKm))
                     return false;
 
                 // Adatok konvertálása
                 IdeiglenesAdat adat = new()
                 {
-                    Datum = DateTime.Parse(adatok.datum),
-                    Palyaszam = int.Parse(adatok.palyaszam),
-                    Napi_km = int.Parse(adatok.napiKm),
-                    Ossz_km = int.Parse(adatok.osszKm)
+                    Datum = DateTime.Parse(datum),
+                    Palyaszam = int.Parse(palyaszam),
+                    Napi_km = int.Parse(napiKm),
+                    Ossz_km = int.Parse(osszKm)
                 };
 
                 // Duplikátum ellenőrzés
@@ -351,15 +350,15 @@ namespace KmKiolvasasMaui
                         "Figyelmeztetés",
                         $"A(z) {adat.Palyaszam} pályaszámhoz már létezik adat {adat.Datum:yyyy.MM.dd}-én.",
                         "OK");
-                    return true; // sikeres OCR, de már létező adat → kilép
+                    return true; // sikeres OCR, de már létező adat -> kilép
                 }
 
                 // Összegzés megjelenítése
                 string osszegzes =
-                    $"Dátum: {adatok.datum}\n" +
-                    $"Pályaszám: {adatok.palyaszam}\n" +
-                    $"Napi km: {adatok.napiKm}\n" +
-                    $"Összes km: {adatok.osszKm}\n\n" +
+                    $"Dátum: {datum}\n" +
+                    $"Pályaszám: {palyaszam}\n" +
+                    $"Napi km: {napiKm}\n" +
+                    $"Összes km: {osszKm}\n\n" +
                     "Szeretnéd ezeket az adatokat elmenteni az email küldéshez?";
 
                 bool menteni = await DisplayAlert("Felismert adatok", osszegzes, "Mentés", "Elvetés");
@@ -370,11 +369,11 @@ namespace KmKiolvasasMaui
                     return true; // sikeres feldolgozás
                 }
 
-                return false; // elvetette → újrafotózás
+                return false; // elvetette -> újrafotózás
             }
             catch
             {
-                return false; // hiba → újrafotózás
+                return false; // hiba -> újrafotózás
             }
         }
 

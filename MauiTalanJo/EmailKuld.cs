@@ -14,19 +14,19 @@ namespace KmKiolvasasMaui
 
         public static async Task KuldesCsvAsync(string to, string subject, string csvTartalom)
         {
-            // 1) MIME üzenet összeállítás
+            //MIME üzenet összeállítás
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Km Kiolvasás Adatok", GmailUser)); // hiteles feladó = Gmail
             message.ReplyTo.Add(new MailboxAddress(ReplyToNev, ReplyToEmail));      // válaszcím = BKV
             message.To.Add(new MailboxAddress("", to));
             message.Subject = subject;
 
-            // 2) CSV fájl létrehozása a cache-ben
+            //CSV fájl létrehozása a cache-ben
             string fileName = $"KmAdatok_{DateTime.Now:yyyyMMdd_HHmm}.csv";
             string filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
             File.WriteAllText(filePath, csvTartalom, Encoding.UTF8);
 
-            // 3) Törzs + csatolmány
+            //Törzs + csatolmány
             BodyBuilder builder = new()
             {
                 TextBody =
@@ -54,7 +54,7 @@ namespace KmKiolvasasMaui
             builder.Attachments.Add(filePath, contentType);
             message.Body = builder.ToMessageBody();
 
-            // 4) SMTP küldés (587 → 465 fallback), OCSP/CRL ellenőrzés kikapcsolva
+            //SMTP küldés OCSP/CRL ellenőrzés kikapcsolva
             //    (csak a revocation check-et kapcsoljuk ki; a többi validáció megmarad)
             try
             {
@@ -86,7 +86,7 @@ namespace KmKiolvasasMaui
             }
             finally
             {
-                // 5) Ideiglenes fájl törlése
+                // Ideiglenes fájl törlése
                 try { if (File.Exists(filePath)) File.Delete(filePath); } catch { /* ignore */ }
             }
         }
