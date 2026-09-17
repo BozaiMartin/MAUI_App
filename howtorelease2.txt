@@ -1,0 +1,20 @@
+terminal:
+dotnet build -c Release -f:net8.0-android
+
+APK itt lesz:
+bin\Release\net8.0-android\
+
+dotnet build -c Release -f:net8.0-android
+
+
+Adatgyűjtés és követelmények összegzése
+
+A rendszer megtervezése és architektúra kialakítása
+
+A működési váz összeállítása és alapfunkciók felépítése
+
+A megoldás implementálása és funkciók megvalósítása
+
+A rendszer tesztelése és hibajavítás
+
+Végfelhasználói oktatás és dokumentáció biztosítása
