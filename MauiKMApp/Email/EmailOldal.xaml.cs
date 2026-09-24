@@ -120,7 +120,7 @@ namespace KmKiolvasasMaui
                         .ToLowerInvariant();
 
                 // FELHASZNÁLÓ
-                
+                //bejelentkezés megoldása később, most csak egy teszt felhasználó
                 string userName =
                     "Teszt felhasználó";
                 
@@ -195,36 +195,6 @@ namespace KmKiolvasasMaui
             {
                 await DisplayAlert(
                     "Adatbázis hiba",
-                    ex.Message,
-                    "OK");
-            }
-        }
-        private async void TesztAdat_Clicked(object sender, EventArgs e)
-        {
-            try
-            {
-                // Biztosítjuk, hogy a táblák létezzenek.
-                await _db.InicializalasAsync();
-
-                IdeiglenesAdat teszt = new()
-                {
-                    Datum = DateTime.Now,
-                    Palyaszam = 1143,
-                    Napi_km = 125,
-                    Ossz_km = 123456
-                };
-
-                await _db.MentIdeiglenesAsync(teszt);
-
-                await DisplayAlert(
-                    "Siker",
-                    "Tesztadat bekerült az ideiglenes adatbázisba.",
-                    "OK");
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert(
-                    "Hiba",
                     ex.Message,
                     "OK");
             }

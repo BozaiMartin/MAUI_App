@@ -5,9 +5,6 @@
              Title="Email küldés">
 
     <VerticalStackLayout Padding="20" Spacing="15">
-        <Button
-Text="Tesztadat létrehozása"
-Clicked="TesztAdat_Clicked" />
         <Button Text="Email tartalom" Clicked="MutatIdeiglenes_Clicked"/>
         <Button Text="Adatok elküldése emailben" Clicked="Kuldes_Clicked"/>
         <Button
