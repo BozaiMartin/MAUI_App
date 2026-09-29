@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    x:Class="KmKiolvasasMaui.JelszoCsereOldal"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Jelszó módosítása">
+
+    <ScrollView>
+
+        <VerticalStackLayout
+            Padding="30"
+            Spacing="18"
+            VerticalOptions="Center">
+
+            <Label
+                Text="Jelszó módosítása"
+                FontSize="28"
+                FontAttributes="Bold"
+                HorizontalOptions="Center" />
+
+            <Label
+                Text="Dolgozószám"
+                FontSize="14" />
+
+            <Label
+                x:Name="DolgozoSzamLabel"
+                FontSize="20"
+                FontAttributes="Bold" />
+
+            <Entry
+                x:Name="RegiJelszoEntry"
+                Placeholder="Régi jelszó"
+                IsPassword="True"
+                ClearButtonVisibility="WhileEditing" />
+
+            <Entry
+                x:Name="UjJelszoEntry"
+                Placeholder="Új jelszó"
+                IsPassword="True"
+                ClearButtonVisibility="WhileEditing" />
+
+            <Entry
+                x:Name="UjJelszoMegerositesEntry"
+                Placeholder="Új jelszó újra"
+                IsPassword="True"
+                ClearButtonVisibility="WhileEditing"
+                ReturnType="Go"
+                Completed="UjJelszoMegerositesEntry_Completed" />
+
+            <Label
+                Text="Az új jelszó legalább 8 karakter legyen, és tartalmazzon betűt és számot."
+                FontSize="13"
+                HorizontalTextAlignment="Center" />
+
+            <Button
+                x:Name="MentesButton"
+                Text="Jelszó módosítása"
+                Clicked="MentesButton_Clicked" />
+
+            <ActivityIndicator
+                x:Name="BetoltesIndicator"
+                IsVisible="False"
+                IsRunning="False"
+                HorizontalOptions="Center" />
+
+            <HorizontalStackLayout Spacing="10">
+
+                <CheckBox
+        x:Name="JelszoMutatasaCheckBox"
+        CheckedChanged="JelszoMutatasaCheckBox_CheckedChanged" />
+
+                <Label
+        Text="Jelszó mutatása"
+        VerticalOptions="Center" />
+
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+    </ScrollView>
+
+</ContentPage>

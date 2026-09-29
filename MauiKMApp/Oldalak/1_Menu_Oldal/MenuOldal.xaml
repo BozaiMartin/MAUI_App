@@ -23,5 +23,14 @@
     Text="Mentett adatok"
     Clicked="NavigalAdatokOldal"
     HorizontalOptions="Fill" />
+        <Button
+    Text="Adatbázis teszt"
+    Clicked="AdatbazisTeszt_Clicked" />
+        <Button
+    Text="Belépés teszt"
+    Clicked="BelepesTeszt_Clicked" />
+        <Button
+    Text="Jelszócsere teszt"
+    Clicked="JelszoCsereTeszt_Clicked" />
     </VerticalStackLayout>
 </ContentPage>

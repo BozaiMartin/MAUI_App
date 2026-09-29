@@ -5,7 +5,7 @@
         public App()
         {
             InitializeComponent();
-            MainPage = new NavigationPage(new MenuOldal());
+            MainPage = new NavigationPage(new BejelentkezesOldal());
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Maui;
 using Plugin.Maui.OCR;
 using CommunityToolkit.Maui.Camera;
+using Microsoft.Extensions.Logging;
+using ZXing.Net.Maui.Controls;
 
 namespace KmKiolvasasMaui
 {
@@ -15,6 +17,7 @@ namespace KmKiolvasasMaui
                 .UseOcr()
                 .UseMauiCommunityToolkit()
                 .UseMauiCommunityToolkitCamera()
+                .UseBarcodeReader()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

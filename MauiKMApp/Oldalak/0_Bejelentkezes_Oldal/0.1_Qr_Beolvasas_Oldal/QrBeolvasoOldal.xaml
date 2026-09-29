@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    x:Class="KmKiolvasasMaui.QrBeolvasoOldal"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+    Title="QR beolvasás"
+    BackgroundColor="Black">
+
+    <Grid
+        RowDefinitions="*,Auto">
+
+        <!-- Kamera -->
+        <zxing:CameraBarcodeReaderView
+            x:Name="QrKamera"
+            Grid.Row="0"
+            CameraLocation="Rear"
+            IsDetecting="True"
+            IsTorchOn="False"
+            BarcodesDetected="QrKamera_BarcodesDetected" />
+
+        <!-- Vizuális segéd -->
+        <Grid
+            Grid.Row="0"
+            InputTransparent="True"
+            Padding="25">
+
+            <VerticalStackLayout
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Spacing="20">
+
+                <Label
+                    Text="Tartsd a belépési QR-kódot a keretbe"
+                    TextColor="White"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    HorizontalTextAlignment="Center" />
+
+                <Border
+                    WidthRequest="260"
+                    HeightRequest="260"
+                    Stroke="White"
+                    StrokeThickness="3"
+                    BackgroundColor="Transparent">
+
+                    <Label
+                        Text="QR"
+                        TextColor="#80FFFFFF"
+                        FontSize="32"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+
+                </Border>
+
+            </VerticalStackLayout>
+
+        </Grid>
+
+        <!-- Alsó vezérlősáv -->
+        <Grid
+            Grid.Row="1"
+            Padding="15"
+            ColumnDefinitions="*,*"
+            ColumnSpacing="10"
+            BackgroundColor="#202020">
+
+            <Button
+                x:Name="VakuButton"
+                Grid.Column="0"
+                Text="Vaku"
+                Clicked="VakuButton_Clicked" />
+
+            <Button
+                Grid.Column="1"
+                Text="Mégse"
+                Clicked="MegseButton_Clicked" />
+
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

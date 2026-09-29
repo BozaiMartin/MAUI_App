@@ -1,66 +1,58 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android34.0</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFramework>net8.0-android34.0</TargetFramework>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>KmKiolvasasMaui</RootNamespace>
+
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
+
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
 		<ApplicationTitle>KM Kiolvasó</ApplicationTitle>
-
-		<ApplicationId>com.KmKiolvasasMaui</ApplicationId>
+		<ApplicationId>com.kmkiolvasasmaui</ApplicationId>
 
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<AndroidVersionCode>1</AndroidVersionCode>
-		<AndroidVersionName>1.1</AndroidVersionName>
-
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-		<AndroidSigningKeyStore>my-release-key.keystore</AndroidSigningKeyStore>
-	</PropertyGroup>
-	
-	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
 		<SupportedOSPlatformVersion>24.0</SupportedOSPlatformVersion>
 		<TargetPlatformVersion>34.0</TargetPlatformVersion>
-	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android34.0|AnyCPU'">
-		<AndroidKeyStore>True</AndroidKeyStore>
-		<EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
-		<AndroidSigningStorePass>bozaim</AndroidSigningStorePass>
-		<AndroidSigningKeyAlias>my-key-alias</AndroidSigningKeyAlias>
-		<AndroidSigningKeyPass>bozaim</AndroidSigningKeyPass>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android34.0|AnyCPU'">
-		<AndroidKeyStore>True</AndroidKeyStore>
-		<AndroidPackageFormat>apk</AndroidPackageFormat>
-		<AndroidSigningStorePass>bozaim</AndroidSigningStorePass>
-		<AndroidSigningKeyAlias>my-key-alias</AndroidSigningKeyAlias>
-		<AndroidSigningKeyPass>bozaim</AndroidSigningKeyPass>
-	</PropertyGroup>
-	<PropertyGroup>
 		<CheckEolWorkloads>false</CheckEolWorkloads>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
+
+	<!-- DEBUG -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<ApplicationId>com.kmkiolvasasmaui.debug</ApplicationId>
+		<ApplicationTitle>KM Kiolvasó DEBUG</ApplicationTitle>
+
+		<DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+
+		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+		<AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+	</PropertyGroup>
+
+
+	<!-- RELEASE -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<ApplicationId>com.kmkiolvasasmaui</ApplicationId>
+		<ApplicationTitle>KM Kiolvasó</ApplicationTitle>
+	</PropertyGroup>
+
+
+	<!-- MAUI ERŐFORRÁSOK -->
 	<ItemGroup>
 		<MauiIcon Include="Resources\AppIcon\appicon.png" Color="#FFD600" />
 
 		<MauiSplashScreen Include="Resources\Images\tram_logo_splash.png" Color="#FFD600" BaseSize="128,128" />
 
 		<MauiImage Include="Resources\Images\*" />
+
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 
 		<MauiFont Include="Resources\Fonts\*" />
@@ -68,38 +60,87 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+
+	<!-- NUGET -->
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
+
 		<PackageReference Include="CommunityToolkit.Maui.Camera" Version="1.0.5" />
-		<PackageReference Include="MailKit" Version="4.13.0" />
+
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.12" />
+
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
+
 		<PackageReference Include="Plugin.Maui.OCR" Version="1.0.15" />
-		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.8" />
+
+		<!--
+			A régi SQLiteAsyncConnection / [PrimaryKey] kódod továbbra is
+			működik, de már SQLCipher bundle-t használ.
+		-->
+		<PackageReference Include="sqlite-net-sqlcipher" Version="1.9.172" />
+
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.1.11" />
+
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.4.0" />
 	</ItemGroup>
 
+
+	<!-- CODE BEHIND -->
 	<ItemGroup>
-		<Compile Update="MenuOldal.xaml.cs">
+		<Compile Update="Oldalak\2_Beolvasas_Oldal\MainPage.xaml.cs">
+		  <DependentUpon>MainPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Oldalak\1_Menu_Oldal\MenuOldal.xaml.cs">
 			<DependentUpon>MenuOldal.xaml</DependentUpon>
 		</Compile>
-		<Compile Update="MainPage.xaml.cs">
+
+		<Compile Update="Oldalak\2_Beolvasas_Oldal\MainPage.xaml.cs">
 			<DependentUpon>MainPage.xaml</DependentUpon>
 		</Compile>
 	</ItemGroup>
 
+
+	<!-- XAML -->
 	<ItemGroup>
-		<MauiXaml Update="AdatokOldal.xaml">
+		<MauiXaml Update="Oldalak\0_Bejelentkezes_Oldal\0.1_Qr_Beolvasas_Oldal\QrBeolvasoOldal.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Oldalak\4_Mentett_Adatok_Oldal\AdatokOldal.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="MenuOldal.xaml">
+		<MauiXaml Update="Oldalak\0_Bejelentkezes_Oldal\BejelentkezesOldal.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Oldalak\5_Jelszo_Csere_Oldal\JelszoCsereOldal.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+
+		<MauiXaml Update="Oldalak\1_Menu_Oldal\MenuOldal.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="CameraPage.xaml">
+
+		<MauiXaml Update="Oldalak\2_Beolvasas_Oldal\2.1_Camera_Oldal\CameraPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+
 		<MauiXaml Update="Email\EmailOldal.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		
+		<MauiXaml Update="Oldalak\0_Bejelentkezes_Oldal\BejelentkezesOldal.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		
+		<MauiXaml Update="Oldalak\5_Jelszo_Csere_Oldal\JelszoCsereOldal.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		
+		<MauiXaml Update="QrBeolvasoOldal.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Oldalak\3_Email_Kuldes_Oldal\" />
 	</ItemGroup>
 
 </Project>

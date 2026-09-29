@@ -80,7 +80,7 @@ namespace KmKiolvasasMaui
 
                 OcrResult? ocrResult = await OcrPlugin.Default.RecognizeTextAsync(imageAsBytes, true);
                 if (ocrResult == null || !ocrResult.Success || string.IsNullOrWhiteSpace(ocrResult.AllText))
-                    return; // nincs adat -> csendben kilép
+                    return; // nincs adat, csendben kilép
 
                 var (datum, palyaszam, napiKm, osszKm) = MainPage.OcrAdatokKinyeres(ocrResult.AllText);
 
@@ -140,7 +140,7 @@ namespace KmKiolvasasMaui
             }
         }
 
-        // ----------- OCR adatkinyerés -----------
+        //  OCR adatkinyerés 
         private static (string datum, string palyaszam, string napiKm, string osszKm) OcrAdatokKinyeres(string ocrText)
         {
             string datum = "";
@@ -165,8 +165,10 @@ namespace KmKiolvasasMaui
                 .Select(l => l.Trim()).Where(l => !string.IsNullOrWhiteSpace(l))];
 
             Match dm = Regex.Match(pre, @"\b\d{4}\.\d{2}\.\d{2}\.");
+
             if (dm.Success)
                 datum = dm.Value.Trim();
+
             else datum = DateTime.Today.ToString("yyyy.MM.dd.");
 
             foreach (string sor in lines)
@@ -180,10 +182,12 @@ namespace KmKiolvasasMaui
             }
 
             Match napiM = Regex.Match(pre, @"MEGTETT\s*ÚT\s*=\s*(\d+)\s*KM", RegexOptions.IgnoreCase);
+
             if (napiM.Success)
                 napiKm = napiM.Groups[1].Value;
 
             int osszIdx = Array.FindIndex(lines, l => HasonlotTartalmaz(l, "OSSZES", 2));
+
             if (osszIdx >= 0)
             {
                 for (int i = osszIdx; i < Math.Min(lines.Length, osszIdx + 5); i++)
@@ -210,6 +214,7 @@ namespace KmKiolvasasMaui
                             osszKm = m.Groups[1].Value;
                     }
                 }
+
                 else if (HasonlotTartalmaz(sor, "KM", 1) || sor.Contains("KM"))
                 {
                     Match m = Regex.Match(sor, @"\b(\d{1,7})\b");
@@ -237,21 +242,23 @@ namespace KmKiolvasasMaui
                     napiKm = val.ToString();
                     allNums.Remove(val.ToString());
                 }
+
                 if (allNums.Count > 0 && string.IsNullOrEmpty(osszKm))
                 {
                     int val = allNums.Select(int.Parse).OrderByDescending(x => x).First();
                     osszKm = val.ToString();
                 }
             }
-
             return (datum, palyaszam, napiKm, osszKm);
         }
 
         private static bool HasonlotTartalmaz(string vonal, string cel, int maxTavolsag = 2)
         {
             if (string.IsNullOrWhiteSpace(vonal) || string.IsNullOrWhiteSpace(cel)) return false;
+
             var tokenek = Regex.Split(vonal, @"\W+").Where(t => !string.IsNullOrWhiteSpace(t));
             string normalCel = OsszehasonlitNormalizal(cel);
+
             foreach (string t in tokenek)
             {
                 if (TavolsagSzamitas(OsszehasonlitNormalizal(t), normalCel) <= maxTavolsag)
@@ -263,8 +270,10 @@ namespace KmKiolvasasMaui
         private static string OsszehasonlitNormalizal(string s)
         {
             if (string.IsNullOrEmpty(s)) return "";
+
             string form = s.Normalize(NormalizationForm.FormD);
             StringBuilder sb = new();
+
             foreach (char ch in form)
             {
                 UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(ch);
@@ -346,11 +355,8 @@ namespace KmKiolvasasMaui
 
                 if (duplikatum)
                 {
-                    await DisplayAlert(
-                        "Figyelmeztetés",
-                        $"A(z) {adat.Palyaszam} pályaszámhoz már létezik adat {adat.Datum:yyyy.MM.dd}-én.",
-                        "OK");
-                    return true; // sikeres OCR, de már létező adat -> kilép
+                    await DisplayAlert("Figyelmeztetés", $"A(z) {adat.Palyaszam} pályaszámhoz már létezik adat {adat.Datum:yyyy.MM.dd}-én.", "OK");
+                    return true; // sikeres OCR, de már létező adat, kilép
                 }
 
                 // Összegzés megjelenítése
@@ -369,14 +375,12 @@ namespace KmKiolvasasMaui
                     return true; // sikeres feldolgozás
                 }
 
-                return false; // elvetette -> újrafotózás
+                return false; // elvetette, újrafotózás
             }
             catch
             {
-                return false; // hiba -> újrafotózás
+                return false; // hiba, újrafotózás
             }
         }
-
-
     }
 }

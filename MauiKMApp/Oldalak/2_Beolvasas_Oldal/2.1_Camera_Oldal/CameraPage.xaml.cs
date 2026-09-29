@@ -63,7 +63,7 @@ namespace KmKiolvasasMaui
             }
             catch
             {
-                // kamera hiba → megpróbálja újra
+                // kamera hiba, megpróbálja újra
             }
             finally
             {
@@ -112,20 +112,19 @@ namespace KmKiolvasasMaui
                     }
                     catch
                     {
-                        // OCR feldolgozási hiba → újra próbálkozik
+                        // OCR feldolgozási hiba, újra próbálkozik
                     }
                 });
             }
             catch
             {
-                // fájlhiba → újra próbálkozik
+                // fájlhiba, újra próbálkozik
             }
             finally
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-                        File.Delete(filePath);
+                    if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath)) File.Delete(filePath);
                 }
                 catch { }
             }
@@ -137,8 +136,7 @@ namespace KmKiolvasasMaui
             {
                 try
                 {
-                    if (Navigation.NavigationStack.Count > 1)
-                        await Navigation.PopAsync();
+                    if (Navigation.NavigationStack.Count > 1) await Navigation.PopAsync();
                 }
                 catch { }
             });
