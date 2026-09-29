@@ -123,7 +123,7 @@
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 
-		<MauiXaml Update="Email\EmailOldal.xaml">
+		<MauiXaml Update="Oldalak\3_Email_Kuldes_Oldal\EmailOldal.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		
@@ -138,9 +138,6 @@
 		<MauiXaml Update="QrBeolvasoOldal.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Oldalak\3_Email_Kuldes_Oldal\" />
 	</ItemGroup>
 
 </Project>
