@@ -10,48 +10,44 @@
 
         <VerticalStackLayout
             Padding="30"
-            Spacing="18"
+            Spacing="20"
             VerticalOptions="Center">
 
             <Label
+                x:Name="CimLabel"
                 Text="Jelszó módosítása"
-                FontSize="28"
+                FontSize="24"
                 FontAttributes="Bold"
                 HorizontalOptions="Center" />
 
-            <Label
-                Text="Dolgozószám"
-                FontSize="14" />
-
-            <Label
-                x:Name="DolgozoSzamLabel"
-                FontSize="20"
-                FontAttributes="Bold" />
-
             <Entry
                 x:Name="RegiJelszoEntry"
-                Placeholder="Régi jelszó"
-                IsPassword="True"
-                ClearButtonVisibility="WhileEditing" />
+                Placeholder="Jelenlegi jelszó"
+                IsPassword="True" />
 
             <Entry
                 x:Name="UjJelszoEntry"
                 Placeholder="Új jelszó"
-                IsPassword="True"
-                ClearButtonVisibility="WhileEditing" />
+                IsPassword="True" />
 
             <Entry
-                x:Name="UjJelszoMegerositesEntry"
+                x:Name="UjJelszoUjraEntry"
                 Placeholder="Új jelszó újra"
                 IsPassword="True"
-                ClearButtonVisibility="WhileEditing"
-                ReturnType="Go"
-                Completed="UjJelszoMegerositesEntry_Completed" />
+                ReturnType="Done"
+                Completed="UjJelszoUjraEntry_Completed" />
+            
+            <HorizontalStackLayout Spacing="10">
 
-            <Label
-                Text="Az új jelszó legalább 8 karakter legyen, és tartalmazzon betűt és számot."
-                FontSize="13"
-                HorizontalTextAlignment="Center" />
+                <CheckBox
+                    x:Name="JelszoMegjelenitesCheckBox"
+                    CheckedChanged="JelszoMegjelenitesCheckBox_CheckedChanged" />
+
+                <Label
+                    Text="Jelszavak megjelenítése"
+                    VerticalOptions="Center" />
+
+            </HorizontalStackLayout>
 
             <Button
                 x:Name="MentesButton"
@@ -64,17 +60,6 @@
                 IsRunning="False"
                 HorizontalOptions="Center" />
 
-            <HorizontalStackLayout Spacing="10">
-
-                <CheckBox
-        x:Name="JelszoMutatasaCheckBox"
-        CheckedChanged="JelszoMutatasaCheckBox_CheckedChanged" />
-
-                <Label
-        Text="Jelszó mutatása"
-        VerticalOptions="Center" />
-
-            </HorizontalStackLayout>
         </VerticalStackLayout>
 
     </ScrollView>

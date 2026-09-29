@@ -1,4 +1,5 @@
 using KmKiolvasasMaui.Adatbazis;
+using KmKiolvasasMaui.Adat_Szerkezet;
 
 namespace KmKiolvasasMaui
 {
@@ -87,7 +88,13 @@ namespace KmKiolvasasMaui
                 {
                     case BejelentkezesEredmenyTipus.Sikeres:
 
-                        SikeresBelepes();
+                        if (eredmeny.Felhasznalo == null)
+                        {
+                            await DisplayAlert("Hiba", "A felhasználó nem tölthetõ be.", "OK");
+                            break;
+                        }
+
+                        SikeresBelepes(eredmeny.Felhasznalo);
                         break;
 
                     case BejelentkezesEredmenyTipus.JelszoCsereSzukseges:
@@ -100,7 +107,7 @@ namespace KmKiolvasasMaui
 
                         JelszoEntry.Text = "";
 
-                        await Navigation.PushAsync(new JelszoCsereOldal(eredmeny.Felhasznalo));
+                        await Navigation.PushAsync(new JelszoCsereOldal(eredmeny.Felhasznalo, true));
                         break;
 
                     case BejelentkezesEredmenyTipus.InaktivDolgozo:
@@ -169,9 +176,9 @@ namespace KmKiolvasasMaui
             }
         }
 
-        private void SikeresBelepes()
+        private void SikeresBelepes(Adat_User felhasznalo)
         {
-            Application.Current!.MainPage = new NavigationPage(new MenuOldal());
+            Application.Current!.MainPage = new NavigationPage(new MenuOldal(felhasznalo));
         }
     }
 }

@@ -1,42 +1,49 @@
 using KmKiolvasasMaui.Adat_Szerkezet;
 using KmKiolvasasMaui.Adatbazis;
 using KmKiolvasasMaui.Kezelok;
+using Microsoft.Maui;
 
 namespace KmKiolvasasMaui
 {
     public partial class JelszoCsereOldal : ContentPage
     {
-        private readonly Adat_User _user;
-        private readonly SQL_Kezelo_Bejelentkezes _bejelentkezesDb;
+        private readonly Adat_User _felhasznalo;
+        private readonly SQL_Kezelo_Bejelentkezes _db;
+        private readonly bool _kotelezo;
+
         private bool _mentesFolyamatban;
 
-        public JelszoCsereOldal(Adat_User user)
+        public JelszoCsereOldal(Adat_User felhasznalo, bool kotelezo)
         {
             InitializeComponent();
 
-            _user = user
-                ?? throw new ArgumentNullException(nameof(user));
+            _felhasznalo = felhasznalo;
 
-            _bejelentkezesDb =
-                new SQL_Kezelo_Bejelentkezes();
+            _kotelezo = kotelezo;
 
-            // A dolgozószám csak megjelenik,
-            // nem szerkeszthetõ.
-            DolgozoSzamLabel.Text =
-                _user.DolgozoSzam;
+            _db = new SQL_Kezelo_Bejelentkezes();
+
+            RegiJelszoEntry.IsVisible = !_kotelezo;
+
+            if (_kotelezo)
+            {
+                CimLabel.Text = "Új jelszó megadása";
+
+                NavigationPage.SetHasBackButton(this, false);
+            }
         }
 
         private async void MentesButton_Clicked(object sender, EventArgs e)
         {
-            await JelszoMentesAsync();
+            await JelszoModositasAsync();
         }
 
-        private async void UjJelszoMegerositesEntry_Completed(object sender, EventArgs e)
+        private async void UjJelszoUjraEntry_Completed(object sender, EventArgs e)
         {
-            await JelszoMentesAsync();
+            await JelszoModositasAsync();
         }
 
-        private async Task JelszoMentesAsync()
+        private async Task JelszoModositasAsync()
         {
             if (_mentesFolyamatban)
                 return;
@@ -45,124 +52,91 @@ namespace KmKiolvasasMaui
 
             string ujJelszo = UjJelszoEntry.Text ?? "";
 
-            string ujJelszoMegerosites = UjJelszoMegerositesEntry.Text ?? "";
+            string ujJelszoUjra = UjJelszoUjraEntry.Text ?? "";
 
-            // 1. Régi jelszó megadása
-            
-            if (string.IsNullOrWhiteSpace(regiJelszo))
+            if (!_kotelezo)
             {
-                await DisplayAlert( "Jelszó módosítása", "Add meg a jelenlegi jelszavadat.", "OK");
+                if (string.IsNullOrWhiteSpace(regiJelszo))
+                {
+                    await DisplayAlert("Jelszó módosítása", "Add meg a jelenlegi jelszót.", "OK");
 
-                RegiJelszoEntry.Focus();
-                return;
+                    RegiJelszoEntry.Focus();
+                    return;
+                }
+
+                bool regiJelszoJo = await Task.Run(() =>
+                    JelszoKezelo.Ellenorzes(
+                        regiJelszo,
+                        _felhasznalo.JelszoHash,
+                        _felhasznalo.JelszoSalt));
+
+                if (!regiJelszoJo)
+                {
+                    await DisplayAlert("Jelszó módosítása", "A jelenlegi jelszó hibás.", "OK");
+
+                    RegiJelszoEntry.Text = "";
+                    RegiJelszoEntry.Focus();
+                    return;
+                }
             }
 
-            // 2. Régi jelszó ellenõrzése
-            
-            bool regiJelszoHelyes = JelszoKezelo.Ellenorzes( regiJelszo, _user.JelszoHash, _user.JelszoSalt);
-
-            if (!regiJelszoHelyes)
-            {
-                await DisplayAlert("Jelszó módosítása", "A régi jelszó hibás.", "OK");
-
-                RegiJelszoEntry.Text = "";
-                RegiJelszoEntry.Focus();
-                return;
-            }
-
-            // 3. Új jelszó
-            
-            if (string.IsNullOrWhiteSpace(ujJelszo))
-            {
-                await DisplayAlert("Jelszó módosítása", "Add meg az új jelszót.", "OK");
-
-                UjJelszoEntry.Focus();
-                return;
-            }
-
-            // 4. Új jelszó megerõsítése
-            
-            if (string.IsNullOrWhiteSpace(ujJelszoMegerosites))
-            {
-                await DisplayAlert("Jelszó módosítása", "Add meg újra az új jelszót.", "OK");
-
-                UjJelszoMegerositesEntry.Focus();
-                return;
-            }
-
-            // 5. A két új jelszó egyezzen
-            
-            if (ujJelszo != ujJelszoMegerosites)
-            {
-                await DisplayAlert("Jelszó módosítása", "A két új jelszó nem egyezik.", "OK");
-
-                UjJelszoMegerositesEntry.Text = "";
-                UjJelszoMegerositesEntry.Focus();
-                return;
-            }
-
-            // 6. Jelszószabályok
-            
             if (!JelszoKezelo.JelszoMegfelelo(ujJelszo, out string hiba))
             {
                 await DisplayAlert("Jelszó módosítása", hiba, "OK");
 
+                UjJelszoEntry.Focus();
                 return;
             }
 
-            // 7. Ne lehessen az új jelszó ugyanaz, mint a régi
-
-            bool ugyanazMintARegi = JelszoKezelo.Ellenorzes( ujJelszo, _user.JelszoHash, _user.JelszoSalt);
-
-            if (ugyanazMintARegi)
+            if (ujJelszo != ujJelszoUjra)
             {
-                await DisplayAlert("Jelszó módosítása", "Az új jelszó nem lehet azonos a régi jelszóval.", "OK");
+                await DisplayAlert("Jelszó módosítása", "A két új jelszó nem egyezik.", "OK");
 
-                UjJelszoEntry.Text = "";
-                UjJelszoMegerositesEntry.Text = "";
-                UjJelszoEntry.Focus();
+                UjJelszoUjraEntry.Text = "";
+                UjJelszoUjraEntry.Focus();
+                return;
+            }
+
+            bool ugyanazAJelszo = await Task.Run(() => JelszoKezelo.Ellenorzes(ujJelszo, _felhasznalo.JelszoHash, _felhasznalo.JelszoSalt));
+
+            if (ugyanazAJelszo)
+            {
+                await DisplayAlert("Jelszó módosítása", "Az új jelszó nem lehet ugyanaz, mint a jelenlegi jelszó.", "OK");
                 return;
             }
 
             try
             {
                 _mentesFolyamatban = true;
+
                 MentesButton.IsEnabled = false;
+
                 BetoltesIndicator.IsVisible = true;
                 BetoltesIndicator.IsRunning = true;
 
-                // 8. Új hash és új salt
+                var (Hash, Salt) = await Task.Run(() => JelszoKezelo.HashKeszites(ujJelszo));
 
-                var ujJelszoAdat = await Task.Run(() => JelszoKezelo.HashKeszites(ujJelszo));
+                _felhasznalo.JelszoModositas(Hash, Salt, JelszoKezelo.UjLejarat(90));
 
-                // 9. User objektum módosítása
-                // Frissit = 0 lesz
-                // új lejárat = +90 nap
+                await _db.ModositasAsync(_felhasznalo);
 
-                _user.JelszoModositas( ujJelszoAdat.Hash, ujJelszoAdat.Salt, JelszoKezelo.UjLejarat(90));
+                await DisplayAlert("Jelszó módosítása", "A jelszó sikeresen megváltozott.", "OK");
 
-                // 10. Mentés az adatbázisba
-                
-                await _bejelentkezesDb.ModositasAsync(_user);
+                if (_kotelezo)
+                {
+                    Application.Current!.MainPage = new NavigationPage(new MenuOldal(_felhasznalo));
 
-                // 11. Mezõk törlése
-                
-                RegiJelszoEntry.Text = "";
-                UjJelszoEntry.Text = "";
-                UjJelszoMegerositesEntry.Text = "";
+                    return;
+                }
 
-                await DisplayAlert("Jelszó módosítása", "A jelszó sikeresen módosítva. Jelentkezz be az új jelszóval.", "OK");
-
-                // 12. VISSZA A BEJELENTKEZÉSHEZ
-                
-                Application.Current!.MainPage = new NavigationPage( new BejelentkezesOldal( _user.DolgozoSzam));
+                await Navigation.PopAsync();
             }
             catch (Exception ex)
             {
 #if DEBUG
                 await DisplayAlert("Jelszó módosítási hiba", ex.ToString(), "OK");
 #else
-                await DisplayAlert("Jelszó módosítási hiba",  "A jelszó módosítása nem sikerült.", "OK");
+                await DisplayAlert("Jelszó módosítási hiba", "A jelszó módosítása során hiba történt.", "OK");
 #endif
             }
             finally
@@ -173,11 +147,22 @@ namespace KmKiolvasasMaui
                 BetoltesIndicator.IsVisible = false;
             }
         }
-        private void JelszoMutatasaCheckBox_CheckedChanged(object sender, CheckedChangedEventArgs e)
+
+        protected override bool OnBackButtonPressed()
         {
-            bool rejtett = !e.Value;
-            UjJelszoEntry.IsPassword = rejtett;
-            UjJelszoMegerositesEntry.IsPassword = rejtett;
+            if (_kotelezo)
+                return true;
+
+            return base.OnBackButtonPressed();
+        }
+
+        private void JelszoMegjelenitesCheckBox_CheckedChanged(object sender, CheckedChangedEventArgs e)
+        {
+            RegiJelszoEntry.IsPassword = !e.Value;
+
+            UjJelszoEntry.IsPassword = !e.Value;
+
+            UjJelszoUjraEntry.IsPassword = !e.Value;
         }
     }
 }

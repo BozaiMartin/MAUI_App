@@ -1,36 +1,46 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="KmKiolvasasMaui.MenuOldal"
-             Title="Menü">
 
-    <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
-        <Label 
+<ContentPage
+    x:Class="KmKiolvasasMaui.MenuOldal"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Menü">
+
+    <VerticalStackLayout
+        Padding="30"
+        Spacing="20"
+        VerticalOptions="Center">
+
+        <Label
             Text="Menü"
             FontSize="24"
             HorizontalOptions="Center" />
 
-        <Button 
+        <Button
             Text="Beolvasás"
             Clicked="NavigalMainPage"
             HorizontalOptions="Fill" />
 
-        <Button 
+        <Button
             Text="Email küldés"
             Clicked="NavigalEmailOldal"
             HorizontalOptions="Fill" />
-        <Button 
-    Text="Mentett adatok"
-    Clicked="NavigalAdatokOldal"
-    HorizontalOptions="Fill" />
+
         <Button
-    Text="Adatbázis teszt"
-    Clicked="AdatbazisTeszt_Clicked" />
+            Text="Mentett adatok"
+            Clicked="NavigalAdatokOldal"
+            HorizontalOptions="Fill" />
+
         <Button
-    Text="Belépés teszt"
-    Clicked="BelepesTeszt_Clicked" />
+            Text="Jelszó módosítása"
+            Clicked="NavigalJelszoCsereOldal"
+            HorizontalOptions="Fill" />
+
         <Button
-    Text="Jelszócsere teszt"
-    Clicked="JelszoCsereTeszt_Clicked" />
+            Text="Kijelentkezés"
+            Clicked="Kijelentkezes_Clicked"
+            HorizontalOptions="Fill" />
+
     </VerticalStackLayout>
+
 </ContentPage>
