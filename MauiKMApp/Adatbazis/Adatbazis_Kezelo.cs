@@ -18,6 +18,18 @@ namespace KmKiolvasasMaui.Adatbazis
             await _db.CreateTableAsync<PalyaszamInfo>();
             await _db.CreateTableAsync<IdeiglenesAdat>();
         }
+        public async Task<PalyaszamInfo?> PalyaszamInfoKeresesAsync(int palyaszam)
+        {
+            return await _db.Table<PalyaszamInfo>()
+                .Where(x => x.Palyaszam == palyaszam)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task MentPalyaszamInfoAsync(PalyaszamInfo adat)
+        {
+            await _db.InsertOrReplaceAsync(adat);
+        }
+
         #region IdeiglenesAdat
         public async Task MentIdeiglenesAsync(IdeiglenesAdat adat)
         {

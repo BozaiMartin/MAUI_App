@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Maui.Networking;
 using KmKiolvasasMaui.Adatbazis;
+using KmKiolvasasMaui.Adat_Szerkezet;
 
 namespace KmKiolvasasMaui
 {
@@ -11,10 +12,16 @@ namespace KmKiolvasasMaui
     {
         public static Adatbazis_Kezelo Adatbazis { get; private set; }
 
-        public MainPage()
+        private static Adat_User? _felhasznalo;
+
+        public MainPage(Adat_User felhasznalo)
         {
             InitializeComponent();
+
+            _felhasznalo = felhasznalo;
+
             Adatbazis = new Adatbazis_Kezelo();
+
             _ = MainPage.Inicializal();
         }
 
@@ -91,12 +98,31 @@ namespace KmKiolvasasMaui
                     string.IsNullOrWhiteSpace(osszKm))
                     return;
 
+                if (_felhasznalo == null)
+                    return;
+
+                int palyaszamSzam = int.Parse(palyaszam);
+
+                PalyaszamInfo? palyaszamInfo =
+                    await Adatbazis.PalyaszamInfoKeresesAsync(palyaszamSzam);
+
                 IdeiglenesAdat adat = new()
                 {
                     Datum = DateTime.Parse(datum),
-                    Palyaszam = int.Parse(palyaszam),
+
+                    Palyaszam = palyaszamSzam,
+
                     Napi_km = int.Parse(napiKm),
-                    Ossz_km = int.Parse(osszKm)
+
+                    Ossz_km = int.Parse(osszKm),
+
+                    DolgozoSzam = _felhasznalo.DolgozoSzam,
+
+                    DolgozoNev = _felhasznalo.FelhasznaloNev,
+
+                    Szervezet = _felhasznalo.Szervezet,
+
+                    Telephely = palyaszamInfo?.Telephely ?? ""
                 };
 
                 bool duplikatum = await Adatbazis.EllenorizDuplikatumAsync(
@@ -341,12 +367,24 @@ namespace KmKiolvasasMaui
                     return false;
 
                 // Adatok konvertálása
+                if (_felhasznalo == null)
+                    return false;
+
+                int palyaszamSzam = int.Parse(palyaszam);
+
+                PalyaszamInfo? palyaszamInfo =
+                    await Adatbazis.PalyaszamInfoKeresesAsync(palyaszamSzam);
+
                 IdeiglenesAdat adat = new()
                 {
                     Datum = DateTime.Parse(datum),
-                    Palyaszam = int.Parse(palyaszam),
+                    Palyaszam = palyaszamSzam,
                     Napi_km = int.Parse(napiKm),
-                    Ossz_km = int.Parse(osszKm)
+                    Ossz_km = int.Parse(osszKm),
+                    DolgozoSzam = _felhasznalo.DolgozoSzam,
+                    DolgozoNev = _felhasznalo.FelhasznaloNev,
+                    Szervezet = _felhasznalo.Szervezet,
+                    Telephely = palyaszamInfo?.Telephely ?? ""
                 };
 
                 // Duplikátum ellenőrzés

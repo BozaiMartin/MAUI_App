@@ -2,6 +2,7 @@
 using KmKiolvasasMaui.Email;
 using System.Security.Cryptography;
 using System.Text;
+using KmKiolvasasMaui.Adat_Szerkezet;
 
 namespace KmKiolvasasMaui
 {
@@ -9,9 +10,13 @@ namespace KmKiolvasasMaui
     {
         private readonly Adatbazis_Kezelo _db = new();
 
-        public EmailOldal()
+        private readonly Adat_User _felhasznalo;
+
+        public EmailOldal(Adat_User felhasznalo)
         {
             InitializeComponent();
+
+            _felhasznalo = felhasznalo;
         }
         private async void Urites_Clicked(object sender, EventArgs e)
         {
@@ -45,7 +50,13 @@ namespace KmKiolvasasMaui
             }
 
             string tartalom = string.Join("\n\n", lista.Select(a =>
-                $"Dátum: {a.Datum:yyyy.MM.dd}\nPályaszám: {a.Palyaszam}\nNapi km: {a.Napi_km}\nÖsszes km: {a.Ossz_km}"));
+            $"Dátum: {a.Datum:yyyy.MM.dd}" +
+            $"\n" +$"Pályaszám: {a.Palyaszam}" +
+            $"\n" +$"Telephely: {a.Telephely}" +
+            $"\n" +$"Dolgozó: {a.DolgozoNev}" +
+            $"\n" +$"Dolgozószám: {a.DolgozoSzam}" +
+            $"\n" +$"Napi km: {a.Napi_km}" +
+            $"\n" +$"Összes km: {a.Ossz_km}"));
 
             await DisplayAlert("Ideiglenes adatok", tartalom, "OK");
         }
@@ -93,13 +104,16 @@ namespace KmKiolvasasMaui
                 
                 StringBuilder csv = new();
 
-                csv.AppendLine(
-                    "Datum;Palyaszam;Napi_km;Ossz_km");
+                csv.AppendLine("Datum;Telephely;DolgozoSzam;DolgozoNev;Szervezet;Palyaszam;Napi_km;Ossz_km");
 
                 foreach (IdeiglenesAdat a in lista)
                 {
                     csv.AppendLine(
                         $"{a.Datum:yyyy.MM.dd};" +
+                        $"{a.Telephely};" +
+                        $"{a.DolgozoSzam};" +
+                        $"{a.DolgozoNev};" +
+                        $"{a.Szervezet};" +
                         $"{a.Palyaszam};" +
                         $"{a.Napi_km};" +
                         $"{a.Ossz_km}");
@@ -110,20 +124,13 @@ namespace KmKiolvasasMaui
 
                 // STABIL REQUEST ID
                 
+                byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(csvTartalom));
 
-                byte[] hashBytes =
-                    SHA256.HashData(
-                        Encoding.UTF8.GetBytes(csvTartalom));
-
-                string requestId =
-                    Convert.ToHexString(hashBytes)
-                        .ToLowerInvariant();
+                string requestId = Convert.ToHexString(hashBytes).ToLowerInvariant();
 
                 // FELHASZNÁLÓ
-                //bejelentkezés megoldása később, most csak egy teszt felhasználó
-                string userName =
-                    "Teszt felhasználó";
-                
+                string userName =$"{_felhasznalo.FelhasznaloNev} ({_felhasznalo.DolgozoSzam})";
+
                 // EMAIL KÜLDÉS
 
                 await EmailKuld.KuldesCsvAsync(
@@ -142,6 +149,11 @@ namespace KmKiolvasasMaui
                         Palyaszam = a.Palyaszam,
                         Napi_km = a.Napi_km,
                         Ossz_km = a.Ossz_km,
+                        DolgozoSzam = a.DolgozoSzam,
+                        DolgozoNev = a.DolgozoNev,
+                        Szervezet = a.Szervezet,
+                        Telephely = a.Telephely,
+
                         Email_kuldve = true
                     };
 

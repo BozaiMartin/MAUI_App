@@ -15,12 +15,12 @@ namespace KmKiolvasasMaui
 
         private async void NavigalMainPage(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new MainPage());
+            await Navigation.PushAsync(new MainPage(_felhasznalo));
         }
 
         private async void NavigalEmailOldal(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new EmailOldal());
+            await Navigation.PushAsync(new EmailOldal(_felhasznalo));
         }
 
         private async void NavigalAdatokOldal(object sender, EventArgs e)

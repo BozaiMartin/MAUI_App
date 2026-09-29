@@ -6,6 +6,7 @@ namespace KmKiolvasasMaui.Adatbazis
     {
         [PrimaryKey]
         public int Palyaszam { get; set; }
-        public string Telephely { get; set; }
+
+        public string Telephely { get; set; } = "";
     }
 }
