@@ -135,6 +135,10 @@
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		
+		<MauiXaml Update="Oldalak\6_Regisztracio_Oldal\RegisztracioOldal.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		
 		<MauiXaml Update="QrBeolvasoOldal.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>

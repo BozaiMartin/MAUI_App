@@ -176,6 +176,11 @@ namespace KmKiolvasasMaui
             }
         }
 
+        private async void RegisztracioButton_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new RegisztracioOldal());
+        }
+
         private void SikeresBelepes(Adat_User felhasznalo)
         {
             Application.Current!.MainPage = new NavigationPage(new MenuOldal(felhasznalo));

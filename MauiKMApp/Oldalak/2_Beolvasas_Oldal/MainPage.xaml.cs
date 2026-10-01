@@ -103,8 +103,8 @@ namespace KmKiolvasasMaui
 
                 int palyaszamSzam = int.Parse(palyaszam);
 
-                PalyaszamInfo? palyaszamInfo =
-                    await Adatbazis.PalyaszamInfoKeresesAsync(palyaszamSzam);
+                string telephely = await Adatbazis.TelephelyKeresesAsync(palyaszamSzam);
+
 
                 IdeiglenesAdat adat = new()
                 {
@@ -122,7 +122,7 @@ namespace KmKiolvasasMaui
 
                     Szervezet = _felhasznalo.Szervezet,
 
-                    Telephely = palyaszamInfo?.Telephely ?? ""
+                    Telephely = telephely
                 };
 
                 bool duplikatum = await Adatbazis.EllenorizDuplikatumAsync(

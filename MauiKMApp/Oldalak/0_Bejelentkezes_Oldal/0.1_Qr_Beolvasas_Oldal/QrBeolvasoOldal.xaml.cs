@@ -6,11 +6,13 @@ namespace KmKiolvasasMaui
     {
         private readonly Action<string> _sikeresBeolvasas;
 
-        // Megakadályozza, hogy ugyanazt a QR-t
-        // egymás után többször feldolgozza.
+        private readonly bool _regisztraciosMod;
+
         private int _feldolgozasFolyamatban;
 
-        public QrBeolvasoOldal(Action<string> sikeresBeolvasas)
+        public QrBeolvasoOldal(
+            Action<string> sikeresBeolvasas,
+            bool regisztraciosMod = false)
         {
             InitializeComponent();
 
@@ -18,6 +20,9 @@ namespace KmKiolvasasMaui
                 sikeresBeolvasas
                 ?? throw new ArgumentNullException(
                     nameof(sikeresBeolvasas));
+
+            _regisztraciosMod =
+                regisztraciosMod;
 
             QrKamera.Options =
                 new BarcodeReaderOptions
@@ -28,7 +33,6 @@ namespace KmKiolvasasMaui
                 };
         }
 
-
         protected override void OnAppearing()
         {
             base.OnAppearing();
@@ -38,19 +42,19 @@ namespace KmKiolvasasMaui
             QrKamera.IsDetecting = true;
         }
 
-
         protected override void OnDisappearing()
         {
             QrKamera.IsDetecting = false;
+
             QrKamera.IsTorchOn = false;
 
             base.OnDisappearing();
         }
 
-
-        private void QrKamera_BarcodesDetected(object sender,BarcodeDetectionEventArgs e)
+        private void QrKamera_BarcodesDetected(
+            object sender,
+            BarcodeDetectionEventArgs e)
         {
-            // Már dolgozunk egy találaton
             if (Interlocked.CompareExchange(
                     ref _feldolgozasFolyamatban,
                     1,
@@ -59,12 +63,50 @@ namespace KmKiolvasasMaui
                 return;
             }
 
-
             string? qrTartalom =
                 e.Results?
                     .FirstOrDefault()?
                     .Value;
 
+            if (string.IsNullOrWhiteSpace(qrTartalom))
+            {
+                Interlocked.Exchange(
+                    ref _feldolgozasFolyamatban,
+                    0);
+
+                return;
+            }
+
+            if (_regisztraciosMod)
+            {
+                _ = MainThread.InvokeOnMainThreadAsync(
+                    async () =>
+                    {
+                        try
+                        {
+                            QrKamera.IsDetecting = false;
+
+                            QrKamera.IsTorchOn = false;
+
+                            _sikeresBeolvasas(
+                                qrTartalom);
+
+                            await Navigation.PopAsync();
+                        }
+                        catch
+                        {
+                            Interlocked.Exchange(
+                                ref _feldolgozasFolyamatban,
+                                0);
+
+                            QrKamera.IsDetecting = true;
+
+                            throw;
+                        }
+                    });
+
+                return;
+            }
 
             if (!QrEllenorzes(
                     qrTartalom,
@@ -90,16 +132,15 @@ namespace KmKiolvasasMaui
                 return;
             }
 
-
-            _ = MainThread.InvokeOnMainThreadAsync( async () =>
+            _ = MainThread.InvokeOnMainThreadAsync(
+                async () =>
                 {
                     try
                     {
                         QrKamera.IsDetecting = false;
+
                         QrKamera.IsTorchOn = false;
 
-                        // Visszaadjuk a dolgozószámot
-                        // a bejelentkezési oldalnak.
                         _sikeresBeolvasas(
                             dolgozoSzam);
 
@@ -118,18 +159,17 @@ namespace KmKiolvasasMaui
                 });
         }
 
-
-        private static bool QrEllenorzes(string? qrTartalom, out string dolgozoSzam)
+        private static bool QrEllenorzes(
+            string? qrTartalom,
+            out string dolgozoSzam)
         {
             dolgozoSzam = "";
 
             if (string.IsNullOrWhiteSpace(qrTartalom))
                 return false;
 
-
             const string prefix =
                 "KMLOGIN:1:";
-
 
             if (!qrTartalom.StartsWith(
                     prefix,
@@ -138,34 +178,27 @@ namespace KmKiolvasasMaui
                 return false;
             }
 
-
             string ertek =
                 qrTartalom[prefix.Length..]
                     .Trim();
 
-
             if (string.IsNullOrWhiteSpace(ertek))
                 return false;
 
-
-            // Dolgozószám:
-            // max. 20 karakter
             if (ertek.Length > 20)
                 return false;
 
-
-            // Jelenleg a dolgozószám numerikus.
             if (!ertek.All(char.IsDigit))
                 return false;
-
 
             dolgozoSzam = ertek;
 
             return true;
         }
 
-
-        private void VakuButton_Clicked(object sender, EventArgs e)
+        private void VakuButton_Clicked(
+            object sender,
+            EventArgs e)
         {
             QrKamera.IsTorchOn =
                 !QrKamera.IsTorchOn;
@@ -176,10 +209,12 @@ namespace KmKiolvasasMaui
                     : "Vaku";
         }
 
-
-        private async void MegseButton_Clicked( object sender, EventArgs e)
+        private async void MegseButton_Clicked(
+            object sender,
+            EventArgs e)
         {
             QrKamera.IsDetecting = false;
+
             QrKamera.IsTorchOn = false;
 
             await Navigation.PopAsync();

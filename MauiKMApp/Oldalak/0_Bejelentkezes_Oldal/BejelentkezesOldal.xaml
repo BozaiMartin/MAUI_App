@@ -34,6 +34,10 @@
                 Text="Dolgozószám beolvasása QR-kóddal"
                 Clicked="QrBeolvasasButton_Clicked" />
 
+            <Button
+                Text="Első regisztráció / új telefon"
+                Clicked="RegisztracioButton_Clicked" />
+
             <Entry
                 x:Name="JelszoEntry"
                 Placeholder="Jelszó"

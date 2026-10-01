@@ -1,4 +1,5 @@
 ﻿using SQLite;
+using KmKiolvasasMaui.Kezelok;
 
 namespace KmKiolvasasMaui.Adatbazis
 {
@@ -25,9 +26,31 @@ namespace KmKiolvasasMaui.Adatbazis
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<string> TelephelyKeresesAsync(int palyaszam)
+        {
+            PalyaszamInfo? adat = await _db.Table<PalyaszamInfo>()
+                .Where(x => x.Palyaszam == palyaszam)
+                .FirstOrDefaultAsync();
+
+            if (adat != null && !string.IsNullOrWhiteSpace(adat.Telephely))
+                return adat.Telephely.Trim();
+
+            return AlkalmazasBeallitasok.Telephely;
+        }
+
         public async Task MentPalyaszamInfoAsync(PalyaszamInfo adat)
         {
             await _db.InsertOrReplaceAsync(adat);
+        }
+
+        public async Task<List<PalyaszamInfo>> LekerdezesPalyaszamInfoAsync()
+        {
+            return await _db.Table<PalyaszamInfo>().ToListAsync();
+        }
+
+        public async Task TorolPalyaszamInfoAsync(int palyaszam)
+        {
+            await _db.DeleteAsync<PalyaszamInfo>(palyaszam);
         }
 
         #region IdeiglenesAdat
@@ -87,5 +110,7 @@ namespace KmKiolvasasMaui.Adatbazis
         {
             return await _db.Table<KiolvasottAdat>().ToListAsync();
         }
+
+
     }
 }
