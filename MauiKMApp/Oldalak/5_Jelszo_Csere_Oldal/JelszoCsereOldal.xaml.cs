@@ -49,9 +49,7 @@ namespace KmKiolvasasMaui
                 return;
 
             string regiJelszo = RegiJelszoEntry.Text ?? "";
-
             string ujJelszo = UjJelszoEntry.Text ?? "";
-
             string ujJelszoUjra = UjJelszoUjraEntry.Text ?? "";
 
             if (!_kotelezo)
@@ -59,21 +57,15 @@ namespace KmKiolvasasMaui
                 if (string.IsNullOrWhiteSpace(regiJelszo))
                 {
                     await DisplayAlert("Jelszó módosítása", "Add meg a jelenlegi jelszót.", "OK");
-
                     RegiJelszoEntry.Focus();
                     return;
                 }
 
-                bool regiJelszoJo = await Task.Run(() =>
-                    JelszoKezelo.Ellenorzes(
-                        regiJelszo,
-                        _felhasznalo.JelszoHash,
-                        _felhasznalo.JelszoSalt));
+                bool regiJelszoJo = await Task.Run(() => JelszoKezelo.Ellenorzes(regiJelszo, _felhasznalo.JelszoHash, _felhasznalo.JelszoSalt));
 
                 if (!regiJelszoJo)
                 {
                     await DisplayAlert("Jelszó módosítása", "A jelenlegi jelszó hibás.", "OK");
-
                     RegiJelszoEntry.Text = "";
                     RegiJelszoEntry.Focus();
                     return;
@@ -83,7 +75,6 @@ namespace KmKiolvasasMaui
             if (!JelszoKezelo.JelszoMegfelelo(ujJelszo, out string hiba))
             {
                 await DisplayAlert("Jelszó módosítása", hiba, "OK");
-
                 UjJelszoEntry.Focus();
                 return;
             }
@@ -91,7 +82,6 @@ namespace KmKiolvasasMaui
             if (ujJelszo != ujJelszoUjra)
             {
                 await DisplayAlert("Jelszó módosítása", "A két új jelszó nem egyezik.", "OK");
-
                 UjJelszoUjraEntry.Text = "";
                 UjJelszoUjraEntry.Focus();
                 return;
@@ -108,9 +98,7 @@ namespace KmKiolvasasMaui
             try
             {
                 _mentesFolyamatban = true;
-
                 MentesButton.IsEnabled = false;
-
                 BetoltesIndicator.IsVisible = true;
                 BetoltesIndicator.IsRunning = true;
 
@@ -125,7 +113,6 @@ namespace KmKiolvasasMaui
                 if (_kotelezo)
                 {
                     Application.Current!.MainPage = new NavigationPage(new MenuOldal(_felhasznalo));
-
                     return;
                 }
 

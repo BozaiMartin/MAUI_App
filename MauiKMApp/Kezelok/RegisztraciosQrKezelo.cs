@@ -7,13 +7,9 @@ namespace KmKiolvasasMaui.Kezelok
 {
     public static class RegisztraciosQrKezelo
     {
-        private const string NyilvanosKulcs =
-            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXbqUGnR6BDS7RtK3JoeNtpB5FRTjE6GPrdaEm4b3K1RGkwBM6s8VgyIP3hbIr9GKY6LLJq1ZAndmlgfyGU4M1g==";
+        private const string NyilvanosKulcs = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXbqUGnR6BDS7RtK3JoeNtpB5FRTjE6GPrdaEm4b3K1RGkwBM6s8VgyIP3hbIr9GKY6LLJq1ZAndmlgfyGU4M1g==";
 
-        public static bool Ellenorzes(
-            string qrTartalom,
-            out RegisztraciosAdat? adat,
-            out string hiba)
+        public static bool Ellenorzes(string qrTartalom, out RegisztraciosAdat? adat, out string hiba)
         {
             adat = null;
             hiba = "";
@@ -38,19 +34,13 @@ namespace KmKiolvasasMaui.Kezelok
 
                 byte[] alairasBytes = Base64UrlDecode(reszek[1]);
 
-                byte[] nyilvanosKulcsBytes =
-                    Convert.FromBase64String(NyilvanosKulcs);
+                byte[] nyilvanosKulcsBytes = Convert.FromBase64String(NyilvanosKulcs);
 
                 using ECDsa ecdsa = ECDsa.Create();
 
-                ecdsa.ImportSubjectPublicKeyInfo(
-                    nyilvanosKulcsBytes,
-                    out _);
+                ecdsa.ImportSubjectPublicKeyInfo(nyilvanosKulcsBytes, out _);
 
-                bool ervenyes = ecdsa.VerifyData(
-                    adatBytes,
-                    alairasBytes,
-                    HashAlgorithmName.SHA256);
+                bool ervenyes = ecdsa.VerifyData(adatBytes, alairasBytes, HashAlgorithmName.SHA256);
 
                 if (!ervenyes)
                 {
@@ -58,8 +48,7 @@ namespace KmKiolvasasMaui.Kezelok
                     return false;
                 }
 
-                adat = JsonSerializer.Deserialize<RegisztraciosAdat>(
-                    Encoding.UTF8.GetString(adatBytes));
+                adat = JsonSerializer.Deserialize<RegisztraciosAdat>(Encoding.UTF8.GetString(adatBytes));
 
                 if (adat == null)
                 {
@@ -73,10 +62,8 @@ namespace KmKiolvasasMaui.Kezelok
                     return false;
                 }
 
-                if (string.IsNullOrWhiteSpace(adat.DolgozoSzam) ||
-                    string.IsNullOrWhiteSpace(adat.DolgozoNev) ||
-                    string.IsNullOrWhiteSpace(adat.Szervezet) ||
-                    string.IsNullOrWhiteSpace(adat.Telephely))
+                if (string.IsNullOrWhiteSpace(adat.DolgozoSzam) || string.IsNullOrWhiteSpace(adat.DolgozoNev) 
+                    || string.IsNullOrWhiteSpace(adat.Szervezet) || string.IsNullOrWhiteSpace(adat.Telephely))
                 {
                     hiba = "Hiányos regisztrációs adatok.";
                     return false;
@@ -99,9 +86,7 @@ namespace KmKiolvasasMaui.Kezelok
 
         private static byte[] Base64UrlDecode(string adat)
         {
-            string base64 = adat
-                .Replace('-', '+')
-                .Replace('_', '/');
+            string base64 = adat.Replace('-', '+').Replace('_', '/');
 
             switch (base64.Length % 4)
             {
