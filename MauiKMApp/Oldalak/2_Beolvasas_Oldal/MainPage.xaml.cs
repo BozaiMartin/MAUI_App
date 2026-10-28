@@ -127,7 +127,7 @@ namespace KmKiolvasasMaui
                     Debug.WriteLine($"Hiányzó mezők: {eredmeny.HianyzoMezokSzovege()}");
 
                     if (!automatikusKamera)
-                        await DisplayAlert("Hiányos felismerés", "Nem sikerült minden szükséges adatot felismerni.\n\nHiányzó adatok: {eredmeny.HianyzoMezokSzovege()}", "OK");
+                        await DisplayAlert("Hiányos felismerés", $"Nem sikerült minden szükséges adatot felismerni.\n\nHiányzó adatok: {eredmeny.HianyzoMezokSzovege()}", "OK");
 
                     return false;
                 }
