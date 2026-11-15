@@ -12,7 +12,7 @@ namespace KmKiolvasasMaui.Adatbazis
 
         private static bool _inicializalva;
 
-        public async Task InicializalasAsync()
+        public static async Task InicializalasAsync()
         {
             if (_inicializalva)
                 return;
@@ -36,7 +36,7 @@ namespace KmKiolvasasMaui.Adatbazis
             }
         }
 
-        public async Task<PalyaszamInfo?> PalyaszamInfoKeresesAsync(int palyaszam)
+        public static async Task<PalyaszamInfo?> PalyaszamInfoKeresesAsync(int palyaszam)
         {
             await InicializalasAsync();
 
@@ -67,7 +67,7 @@ namespace KmKiolvasasMaui.Adatbazis
             };
         }
 
-        public async Task<string> TelephelyKeresesAsync(int palyaszam)
+        public static async Task<string> TelephelyKeresesAsync(int palyaszam)
         {
             PalyaszamInfo? adat = await PalyaszamInfoKeresesAsync(palyaszam);
 
@@ -77,7 +77,7 @@ namespace KmKiolvasasMaui.Adatbazis
             return AlkalmazasBeallitasok.Telephely;
         }
 
-        public async Task MentPalyaszamInfoAsync(PalyaszamInfo adat)
+        public static async Task MentPalyaszamInfoAsync(PalyaszamInfo adat)
         {
             await InicializalasAsync();
 
@@ -103,7 +103,7 @@ namespace KmKiolvasasMaui.Adatbazis
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task<List<PalyaszamInfo>> LekerdezesPalyaszamInfoAsync()
+        public static async Task<List<PalyaszamInfo>> LekerdezesPalyaszamInfoAsync()
         {
             await InicializalasAsync();
 
@@ -134,7 +134,7 @@ namespace KmKiolvasasMaui.Adatbazis
             return lista;
         }
 
-        public async Task TorolPalyaszamInfoAsync(int palyaszam)
+        public static async Task TorolPalyaszamInfoAsync(int palyaszam)
         {
             await InicializalasAsync();
 
@@ -153,7 +153,7 @@ namespace KmKiolvasasMaui.Adatbazis
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task MentIdeiglenesAsync(IdeiglenesAdat adat)
+        public static async Task MentIdeiglenesAsync(IdeiglenesAdat adat)
         {
             await InicializalasAsync();
 
@@ -209,7 +209,7 @@ namespace KmKiolvasasMaui.Adatbazis
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task<List<IdeiglenesAdat>> LekerdezesIdeiglenesAsync()
+        public static async Task<List<IdeiglenesAdat>> LekerdezesIdeiglenesAsync()
         {
             await InicializalasAsync();
 
@@ -218,7 +218,7 @@ namespace KmKiolvasasMaui.Adatbazis
             return await IdeiglenesListaAsync(connection, null, null);
         }
 
-        public async Task TorolIdeiglenesAsync()
+        public static async Task TorolIdeiglenesAsync()
         {
             await InicializalasAsync();
 
@@ -231,7 +231,7 @@ namespace KmKiolvasasMaui.Adatbazis
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task<bool> EllenorizDuplikatumAsync(DateTime datum, int palyaszam, int napiKm, int osszKm)
+        public static async Task<bool> EllenorizDuplikatumAsync(DateTime datum, int palyaszam, int napiKm, int osszKm)
         {
             await InicializalasAsync();
 
@@ -281,7 +281,7 @@ namespace KmKiolvasasMaui.Adatbazis
                 Convert.ToInt32(eredmeny) > 0;
         }
 
-        public async Task<(string? BatchId, List<IdeiglenesAdat> Adatok)> SyncCsomagEloKeszitesAsync()
+        public static async Task<(string? BatchId, List<IdeiglenesAdat> Adatok)> SyncCsomagEloKeszitesAsync()
         {
             await InicializalasAsync();
 
@@ -391,7 +391,7 @@ namespace KmKiolvasasMaui.Adatbazis
             }
         }
 
-        public async Task SyncCsomagSikertelenAsync(string batchId)
+        public static async Task SyncCsomagSikertelenAsync(string batchId)
         {
             await InicializalasAsync();
 
@@ -413,7 +413,7 @@ namespace KmKiolvasasMaui.Adatbazis
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task SyncCsomagSikeresAsync(string batchId)
+        public static async Task SyncCsomagSikeresAsync(string batchId)
         {
             await InicializalasAsync();
 
@@ -507,7 +507,7 @@ namespace KmKiolvasasMaui.Adatbazis
             transaction.Commit();
         }
 
-        public async Task TorolKiolvasottAdatokatAsync()
+        public static async Task TorolKiolvasottAdatokatAsync()
         {
             await InicializalasAsync();
 
@@ -520,7 +520,7 @@ namespace KmKiolvasasMaui.Adatbazis
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task MentesAsync(KiolvasottAdat adat)
+        public static async Task MentesAsync(KiolvasottAdat adat)
         {
             await InicializalasAsync();
 
@@ -594,7 +594,7 @@ namespace KmKiolvasasMaui.Adatbazis
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task<List<KiolvasottAdat>> LekerdezesAsync()
+        public static async Task<List<KiolvasottAdat>> LekerdezesAsync()
         {
             await InicializalasAsync();
 

@@ -29,7 +29,7 @@ namespace KmKiolvasasMaui
 
             try
             {
-                await _adatbazis.InicializalasAsync();
+                await Adatbazis_Kezelo.InicializalasAsync();
 
                 if (!_ocrInicializalva)
                 {
@@ -139,9 +139,9 @@ namespace KmKiolvasasMaui
 
                 DateTime datum = eredmeny.Datum!.Value;
 
-                string telephely = await _adatbazis.TelephelyKeresesAsync(palyaszam);
+                string telephely = await Adatbazis_Kezelo.TelephelyKeresesAsync(palyaszam);
 
-                bool duplikatum = await _adatbazis.EllenorizDuplikatumAsync(datum, palyaszam, napiKm, osszKm);
+                bool duplikatum = await Adatbazis_Kezelo.EllenorizDuplikatumAsync(datum, palyaszam, napiKm, osszKm);
 
                 if (duplikatum)
                 {
@@ -186,7 +186,7 @@ namespace KmKiolvasasMaui
                     CreatedAtUtc = DateTime.UtcNow
                 };
 
-                await _adatbazis.MentIdeiglenesAsync(adat);
+                await Adatbazis_Kezelo.MentIdeiglenesAsync(adat);
 
                 if (!automatikusKamera)
                     await DisplayAlert("Mentés", "Az adat helyben elmentésre került.", "OK");

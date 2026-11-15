@@ -6,8 +6,6 @@
              Title="Automatikus Fotó">
 
     <Grid RowDefinitions="Auto,*" Padding="0" Margin="0">
-
-        <!-- Kamera majdnem teljes képernyőn -->
         <toolkit:CameraView 
     x:Name="cameraView"
     Grid.Row="1"

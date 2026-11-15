@@ -6,7 +6,7 @@
 
         public async Task MentAdatotAsync(KiolvasottAdat adat)
         {
-            await _kezelo.MentesAsync(adat);
+            await Adatbazis_Kezelo.MentesAsync(adat);
         }
     }
 }

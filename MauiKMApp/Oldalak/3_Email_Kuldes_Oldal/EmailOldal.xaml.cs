@@ -28,7 +28,7 @@ namespace KmKiolvasasMaui
 
             try
             {
-                await _db.TorolKiolvasottAdatokatAsync();
+                await Adatbazis_Kezelo.TorolKiolvasottAdatokatAsync();
 
                 await DisplayAlert("Információ", "Az adatbázis sikeresen ürítve lett.", "OK");
             }
@@ -42,7 +42,7 @@ namespace KmKiolvasasMaui
 
         private async void MutatIdeiglenes_Clicked(object sender, EventArgs e)
         {
-            List<IdeiglenesAdat> lista = await _db.LekerdezesIdeiglenesAsync();
+            List<IdeiglenesAdat> lista = await Adatbazis_Kezelo.LekerdezesIdeiglenesAsync();
 
             if (lista.Count == 0)
             {
@@ -89,7 +89,7 @@ namespace KmKiolvasasMaui
 
                 while (true)
                 {
-                    (string? batchId,List<IdeiglenesAdat> lista) = await _db.SyncCsomagEloKeszitesAsync();
+                    (string? batchId,List<IdeiglenesAdat> lista) = await Adatbazis_Kezelo.SyncCsomagEloKeszitesAsync();
 
                     if (string.IsNullOrWhiteSpace(batchId) || lista.Count == 0)
                         break;
@@ -119,7 +119,7 @@ namespace KmKiolvasasMaui
                     {
                         bool marElkuldve = await EmailKuld.KuldesCsvAsync(requestId: batchId, userName: userName, csvTartalom: csv.ToString());
 
-                        await _db.SyncCsomagSikeresAsync(batchId);
+                        await Adatbazis_Kezelo.SyncCsomagSikeresAsync(batchId);
 
                         osszesElkuldott += lista.Count;
 
@@ -131,7 +131,7 @@ namespace KmKiolvasasMaui
 
                         try
                         {
-                            await _db.SyncCsomagSikertelenAsync(batchId);
+                            await Adatbazis_Kezelo.SyncCsomagSikertelenAsync(batchId);
                         }
                         catch (Exception statusEx)
                         {
@@ -186,7 +186,7 @@ namespace KmKiolvasasMaui
 
             try
             {
-                await _db.InicializalasAsync();
+                await Adatbazis_Kezelo.InicializalasAsync();
             }
             catch (Exception ex)
             {
