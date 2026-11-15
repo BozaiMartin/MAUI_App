@@ -106,7 +106,7 @@ namespace KmKiolvasasMaui
 
                 _felhasznalo.JelszoModositas(Hash, Salt, JelszoKezelo.UjLejarat(90));
 
-                await _db.ModositasAsync(_felhasznalo);
+                await SQL_Kezelo_Bejelentkezes.ModositasAsync(_felhasznalo);
 
                 await DisplayAlert("Jelszó módosítása", "A jelszó sikeresen megváltozott.", "OK");
 

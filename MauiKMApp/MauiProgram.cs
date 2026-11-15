@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Maui;
-using Plugin.Maui.OCR;
-using CommunityToolkit.Maui.Camera;
 using Microsoft.Extensions.Logging;
+using Plugin.Maui.OCR;
 using ZXing.Net.Maui.Controls;
 
 namespace KmKiolvasasMaui
@@ -12,20 +11,14 @@ namespace KmKiolvasasMaui
         {
             SQLitePCL.Batteries_V2.Init();
             MauiAppBuilder builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .UseOcr()
-                .UseMauiCommunityToolkit()
-                .UseMauiCommunityToolkitCamera()
-                .UseBarcodeReader()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
+            builder.UseMauiApp<App>().UseOcr().UseMauiCommunityToolkit().UseMauiCommunityToolkitCamera().UseBarcodeReader().ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

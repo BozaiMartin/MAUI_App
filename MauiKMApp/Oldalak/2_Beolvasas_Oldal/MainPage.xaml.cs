@@ -121,7 +121,6 @@ namespace KmKiolvasasMaui
 
                 Debug.WriteLine($"Bizonytalan: {eredmeny.Bizonytalan}");
 
-                // Nem találunk ki hiányzó adatot.
                 if (!eredmeny.Teljes)
                 {
                     Debug.WriteLine($"Hiányzó mezők: {eredmeny.HianyzoMezokSzovege()}");
@@ -140,8 +139,6 @@ namespace KmKiolvasasMaui
 
                 DateTime datum = eredmeny.Datum!.Value;
 
-                // Mindkét OCR út ugyanazt a
-                // telephely-meghatározást használja.
                 string telephely = await _adatbazis.TelephelyKeresesAsync(palyaszam);
 
                 bool duplikatum = await _adatbazis.EllenorizDuplikatumAsync(datum, palyaszam, napiKm, osszKm);

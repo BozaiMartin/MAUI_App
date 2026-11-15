@@ -82,7 +82,7 @@ namespace KmKiolvasasMaui
                 BetoltesIndicator.IsVisible = true;
                 BetoltesIndicator.IsRunning = true;
 
-                BejelentkezesEredmeny eredmeny = await _bejelentkezesSzolgaltatas.BejelentkezesAsync(dolgozoSzam, jelszo);
+                BejelentkezesEredmeny eredmeny = await BejelentkezesSzolgaltatas.BejelentkezesAsync(dolgozoSzam, jelszo);
 
                 switch (eredmeny.Tipus)
                 {

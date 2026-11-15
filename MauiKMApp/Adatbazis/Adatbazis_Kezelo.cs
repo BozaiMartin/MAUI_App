@@ -88,19 +88,12 @@ namespace KmKiolvasasMaui.Adatbazis
             cmd.CommandText =
                 """
                 INSERT INTO PalyaszamInfo
-                (
-                    Palyaszam,
-                    Telephely
-                )
+                (Palyaszam, Telephely)
                 VALUES
-                (
-                    @Palyaszam,
-                    @Telephely
-                )
+                (@Palyaszam, @Telephely)
                 ON CONFLICT(Palyaszam)
                 DO UPDATE SET
-                    Telephely =
-                    excluded.Telephely;
+                    Telephely = excluded.Telephely;
                 """;
 
             cmd.Parameters.AddWithValue("@Palyaszam", adat.Palyaszam);
@@ -300,8 +293,6 @@ namespace KmKiolvasasMaui.Adatbazis
             {
                 string? batchId = null;
 
-                // 1. Van-e korábban félbemaradt
-                // Failed vagy Syncing csomag?
                 using (SqliteCommand keres = connection.CreateCommand())
                 {
                     keres.Transaction = transaction;
@@ -314,10 +305,7 @@ namespace KmKiolvasasMaui.Adatbazis
                     SyncBatchId IS NOT NULL
                     AND SyncBatchId <> ''
                     AND
-                    (
-                        SyncStatus = @Failed
-                        OR SyncStatus = @Syncing
-                    )
+                    (SyncStatus = @Failed OR SyncStatus = @Syncing)
                 ORDER BY Id
                 LIMIT 1;
                 """;
@@ -332,8 +320,6 @@ namespace KmKiolvasasMaui.Adatbazis
                         batchId = Convert.ToString(eredmeny);
                 }
 
-                // Ha nincs régi csomag,
-                // a Pending rekordokból újat készítünk.
                 if (string.IsNullOrWhiteSpace(batchId))
                 {
                     batchId = Guid.NewGuid().ToString("N");
@@ -374,8 +360,6 @@ namespace KmKiolvasasMaui.Adatbazis
                 }
                 else
                 {
-                    // 3. A régi Failed csomagot
-                    // újra Syncing állapotba tesszük.
                     using SqliteCommand ujraprobal = connection.CreateCommand();
 
                     ujraprobal.Transaction = transaction;
@@ -394,7 +378,6 @@ namespace KmKiolvasasMaui.Adatbazis
                     await ujraprobal.ExecuteNonQueryAsync();
                 }
 
-                // 4. Az aktuális csomag adatainak lekérése.
                 List<IdeiglenesAdat> adatok = await IdeiglenesListaAsync(connection, transaction, batchId);
 
                 transaction.Commit();
@@ -691,56 +674,38 @@ namespace KmKiolvasasMaui.Adatbazis
                 CREATE TABLE IF NOT EXISTS
                 PalyaszamInfo
                 (
-                    Palyaszam INTEGER
-                        PRIMARY KEY,
-
-                    Telephely TEXT
-                        NOT NULL
-                        DEFAULT ''
+                    Palyaszam INTEGER PRIMARY KEY,
+                    Telephely TEXT NOT NULL DEFAULT ''
                 );
                 """,
                 """
                 CREATE TABLE IF NOT EXISTS IdeiglenesAdat
                 (
-                    Id INTEGER
-                        PRIMARY KEY
-                        AUTOINCREMENT,
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-                    ReadingId TEXT
-                        NOT NULL
-                        UNIQUE,
+                    ReadingId TEXT NOT NULL UNIQUE,
 
-                    Datum TEXT
-                        NOT NULL,
+                    Datum TEXT NOT NULL,
 
-                    Napi_km INTEGER
-                        NOT NULL,
+                    Napi_km INTEGER NOT NULL,
 
-                    Ossz_km INTEGER
-                        NOT NULL,
+                    Ossz_km INTEGER NOT NULL,
 
-                    Palyaszam INTEGER
-                        NOT NULL,
+                    Palyaszam INTEGER NOT NULL,
 
-                    DolgozoSzam TEXT
-                        NOT NULL,
+                    DolgozoSzam TEXT NOT NULL,
 
-                    DolgozoNev TEXT
-                        NOT NULL,
+                    DolgozoNev TEXT NOT NULL,
 
-                    Szervezet TEXT
-                        NOT NULL,
+                    Szervezet TEXT NOT NULL,
 
-                    Telephely TEXT
-                        NOT NULL,
+                    Telephely TEXT NOT NULL,
 
-                    SyncStatus TEXT
-                        NOT NULL,
+                    SyncStatus TEXT NOT NULL,
 
                     SyncBatchId TEXT,
 
-                    CreatedAtUtc TEXT
-                        NOT NULL
+                    CreatedAtUtc TEXT NOT NULL
               );
               """,
 
@@ -748,50 +713,33 @@ namespace KmKiolvasasMaui.Adatbazis
                 CREATE TABLE IF NOT EXISTS
                 KiolvasottAdat
                 (
-                    Id INTEGER
-                        PRIMARY KEY
-                        AUTOINCREMENT,
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-                    ReadingId TEXT
-                        NOT NULL
-                        UNIQUE,
+                    ReadingId TEXT NOT NULL UNIQUE,
 
-                    Datum TEXT
-                        NOT NULL,
+                    Datum TEXT NOT NULL,
 
-                    Napi_km INTEGER
-                        NOT NULL,
+                    Napi_km INTEGER NOT NULL,
 
-                    Ossz_km INTEGER
-                        NOT NULL,
+                    Ossz_km INTEGER NOT NULL,
 
-                    Palyaszam INTEGER
-                        NOT NULL,
+                    Palyaszam INTEGER NOT NULL,
 
-                    DolgozoSzam TEXT
-                        NOT NULL,
+                    DolgozoSzam TEXT NOT NULL,
 
-                    DolgozoNev TEXT
-                        NOT NULL,
+                    DolgozoNev TEXT NOT NULL,
 
-                    Szervezet TEXT
-                        NOT NULL,
+                    Szervezet TEXT NOT NULL,
 
-                    Telephely TEXT
-                        NOT NULL,
+                    Telephely TEXT NOT NULL,
 
-                    Email_kuldve INTEGER
-                        NOT NULL
-                        DEFAULT 0,
+                    Email_kuldve INTEGER NOT NULL DEFAULT 0,
 
-                    SyncStatus TEXT
-                        NOT NULL,
+                    SyncStatus TEXT NOT NULL,
 
-                    CreatedAtUtc TEXT
-                        NOT NULL,
+                    CreatedAtUtc TEXT NOT NULL,
 
-                    SentAtUtc TEXT
-                        NULL
+                    SentAtUtc TEXT NULL
                 );
                 """,
 

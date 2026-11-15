@@ -11,7 +11,7 @@ namespace KmKiolvasasMaui.Kezelok
 
         private const string TablaNev = "Users";
 
-        public async Task InicializalasAsync()
+        public static async Task InicializalasAsync()
         {
             using SqliteConnection connection = await SqliteKapcsolat.MegnyitAsync(FajlNev);
 
@@ -42,7 +42,7 @@ namespace KmKiolvasasMaui.Kezelok
 
             await cmd.ExecuteNonQueryAsync();
         }
-        public async Task RogzitesAsync(Adat_User adat)
+        public static async Task RogzitesAsync(Adat_User adat)
         {
             using SqliteConnection connection = await SqliteKapcsolat.MegnyitAsync(FajlNev);
 
@@ -92,7 +92,7 @@ namespace KmKiolvasasMaui.Kezelok
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task ModositasAsync(Adat_User adat)
+        public static async Task ModositasAsync(Adat_User adat)
         {
             using SqliteConnection connection = await SqliteKapcsolat.MegnyitAsync(FajlNev);
 

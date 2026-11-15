@@ -23,8 +23,8 @@ namespace KmKiolvasasMaui.Adatbazis
 
                 SQL_Kezelo_Dolgozo dolgozoDb = new ();
 
-                await bejelentkezesDb.InicializalasAsync();
-                await dolgozoDb.InicializalasAsync();
+                await SQL_Kezelo_Bejelentkezes.InicializalasAsync();
+                await SQL_Kezelo_Dolgozo.InicializalasAsync();
 
                 _inicializalva = true;
             }

@@ -17,8 +17,7 @@
     Margin="0"
 />
 
-        <!-- Felül opcionálisan egy kis overlay, ha később visszajelzést akarsz -->
-        <!--<Label Text="Kép készül..." 
+        <Label Text="Kép készül..." 
                BackgroundColor="#80000000"
                TextColor="White"
                FontSize="20"
@@ -27,7 +26,7 @@
                Margin="0"
                Padding="10"
                IsVisible="False"
-               x:Name="statusLabel"/>-->
+               x:Name="statusLabel"/>
 
     </Grid>
 </ContentPage>

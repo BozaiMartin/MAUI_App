@@ -11,7 +11,7 @@ namespace KmKiolvasasMaui.Kezelok
         {
             OcrKinyertAdat eredmeny = new()
             {
-                NyersOcrSzoveg =ocrText ?? ""
+                NyersOcrSzoveg = ocrText ?? ""
             };
 
             if (string.IsNullOrWhiteSpace(ocrText))
@@ -76,8 +76,6 @@ namespace KmKiolvasasMaui.Kezelok
 
             ertekek = [.. ertekek.Distinct()];
 
-            // Csak akkor fogadjuk el fallbackként,
-            // ha pontosan egy km érték van.
             if (ertekek.Count == 1)
                 return ertekek[0];
 
@@ -142,7 +140,6 @@ namespace KmKiolvasasMaui.Kezelok
                 if (int.TryParse(match.Groups[1].Value, out int palyaszam))
                 {
                     eredmeny.Palyaszam = palyaszam;
-
                     return;
                 }
             }

@@ -52,11 +52,7 @@ namespace KmKiolvasasMaui
 
         private void QrFeldolgozas(string qrTartalom)
         {
-            bool ervenyes =
-                RegisztraciosQrKezelo.Ellenorzes(
-                    qrTartalom,
-                    out RegisztraciosAdat? adat,
-                    out string hiba);
+            bool ervenyes = RegisztraciosQrKezelo.Ellenorzes(qrTartalom, out RegisztraciosAdat? adat, out string hiba);
 
             if (!ervenyes || adat == null)
             {
@@ -144,9 +140,9 @@ namespace KmKiolvasasMaui
 
                 SQL_Kezelo_Dolgozo dolgozoDb = new();
 
-                await bejelentkezesDb.InicializalasAsync();
+                await SQL_Kezelo_Bejelentkezes.InicializalasAsync();
 
-                await dolgozoDb.InicializalasAsync();
+                await SQL_Kezelo_Dolgozo.InicializalasAsync();
 
                 Adat_User? meglevoUser = await SQL_Kezelo_Bejelentkezes.FelhasznaloKeresesAsync(_regisztraciosAdat.DolgozoSzam);
 
@@ -156,18 +152,14 @@ namespace KmKiolvasasMaui
                     return;
                 }
 
-                Adat_Dolgozo dolgozo = new(
-                    dolgozoSzam:_regisztraciosAdat.DolgozoSzam,
-                    dolgozoNev:_regisztraciosAdat.DolgozoNev,
-                    szervezet:_regisztraciosAdat.Szervezet,
-                    status: 0);
+                Adat_Dolgozo dolgozo = new(dolgozoSzam:_regisztraciosAdat.DolgozoSzam, dolgozoNev:_regisztraciosAdat.DolgozoNev, szervezet:_regisztraciosAdat.Szervezet, status: 0);
 
-                bool dolgozoLetezik = await dolgozoDb.DolgozoLetezikAsync(_regisztraciosAdat.DolgozoSzam);
+                bool dolgozoLetezik = await SQL_Kezelo_Dolgozo.DolgozoLetezikAsync(_regisztraciosAdat.DolgozoSzam);
 
                 if (dolgozoLetezik)
-                    await dolgozoDb.ModositasAsync(dolgozo);
+                    await SQL_Kezelo_Dolgozo.ModositasAsync(dolgozo);
                 else
-                    await dolgozoDb.RogzitesAsync(dolgozo);
+                    await SQL_Kezelo_Dolgozo.RogzitesAsync(dolgozo);
 
                 var (Hash, Salt) = await Task.Run(() => JelszoKezelo.HashKeszites(jelszo));
 
@@ -183,7 +175,7 @@ namespace KmKiolvasasMaui
                     admin:_regisztraciosAdat.Admin
                     );
 
-                await bejelentkezesDb.RogzitesAsync(user);
+                await SQL_Kezelo_Bejelentkezes.RogzitesAsync(user);
 
                 AlkalmazasBeallitasok.TelephelyBeallitas(_regisztraciosAdat.Telephely);
 

@@ -138,20 +138,13 @@ namespace KmKiolvasasMaui
                             Debug.WriteLine($"Failed státusz beállítási hiba: {statusEx}");
                         }
 
-                        await DisplayAlert(
-                            "Küldési hiba",
-                            $"Az adatok küldése nem sikerült.\n\n" +
-                            $"Hiba: {ex.Message}\n\n" +
-                            "A rekordok helyben megmaradtak.",
-                            "OK");
-
+                        await DisplayAlert("Küldési hiba", $"Az adatok küldése nem sikerült.\n\nHiba: {ex.Message}\n\nA rekordok helyben megmaradtak.","OK");
                         return;
                     }
 
                     if (feldolgozottCsomag >= 20)
                     {
                         Debug.WriteLine("A szinkronizáció elérte a 20 csomagos biztonsági korlátot.");
-
                         break;
                     }
                 }
@@ -177,26 +170,12 @@ namespace KmKiolvasasMaui
             }
         }
 
-        private async Task BiztonsagosanSikertelenreAllitAsync(string batchId)
-        {
-            try
-            {
-                await _db.SyncCsomagSikertelenAsync(batchId);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Sync státusz hiba: {ex}");
-            }
-        }
-
         private static string CsvMezo(string? value)
         {
             string szoveg = value ?? "";
 
             if (szoveg.Contains(';') || szoveg.Contains('"') || szoveg.Contains('\n') || szoveg.Contains('\r'))
-            {
                 return $"\"{szoveg.Replace("\"", "\"\"")}\"";
-            }
 
             return szoveg;
         }
@@ -212,7 +191,6 @@ namespace KmKiolvasasMaui
             catch (Exception ex)
             {
                 Debug.WriteLine($"Adatbázis inicializálási hiba: {ex}");
-
                 await DisplayAlert("Adatbázis hiba", "A helyi adatbázis inicializálása nem sikerült.", "OK");
             }
         }

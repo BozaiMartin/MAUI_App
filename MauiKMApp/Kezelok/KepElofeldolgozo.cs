@@ -40,7 +40,6 @@ namespace KmKiolvasasMaui.Kezelok
 
             long intenzitasOsszeg = 0;
 
-            // SZÜRKEÁRNYALAT
             for (int i = 0; i < pixelek.Length; i++)
             {
                 SKColor pixel = pixelek[i];
@@ -61,12 +60,10 @@ namespace KmKiolvasasMaui.Kezelok
 
             int height = atmeretezett.Height;
 
-            // ENYHE 3x3 ZAJCSÖKKENTÉS
             byte[] vizszintes = new byte[szurke.Length];
 
             byte[] zajszurt = new byte[szurke.Length];
 
-            // vízszintes átlagolás
             for (int y = 0; y < height; y++)
             {
                 int sorKezdet = y * width;
@@ -74,20 +71,17 @@ namespace KmKiolvasasMaui.Kezelok
                 for (int x = 0; x < width; x++)
                 {
                     int sum = szurke[sorKezdet + x];
-
                     int count = 1;
 
                     if (x > 0)
                     {
                         sum += szurke[sorKezdet + x - 1];
-
                         count++;
                     }
 
                     if (x + 1 < width)
                     {
                         sum += szurke[sorKezdet + x + 1];
-
                         count++;
                     }
 
@@ -95,7 +89,6 @@ namespace KmKiolvasasMaui.Kezelok
                 }
             }
 
-            // függőleges átlagolás
             for (int y = 0; y < height; y++)
             {
                 int sorKezdet = y * width;
@@ -103,20 +96,17 @@ namespace KmKiolvasasMaui.Kezelok
                 for (int x = 0; x < width; x++)
                 {
                     int sum = vizszintes[sorKezdet + x];
-
                     int count = 1;
 
                     if (y > 0)
                     {
                         sum += vizszintes[sorKezdet - width + x];
-
                         count++;
                     }
 
                     if (y + 1 < height)
                     {
                         sum += vizszintes[sorKezdet + width + x];
-
                         count++;
                     }
 
@@ -124,13 +114,10 @@ namespace KmKiolvasasMaui.Kezelok
                 }
             }
 
-            // OTSU KÜSZÖB
             int kuszob = OtsuKuszob(zajszurt);
 
             double atlagIntenzitas = intenzitasOsszeg / (double)pixelek.Length;
 
-            // Ha sötét a kijelző háttere,
-            // fekete karaktereket készítünk fehér háttérrel.
             bool sotetHatter = atlagIntenzitas < 128;
 
             SKColor[] kimenet = new SKColor[zajszurt.Length];
@@ -144,11 +131,7 @@ namespace KmKiolvasasMaui.Kezelok
                 kimenet[i] = new SKColor(ertek, ertek, ertek, 255);
             }
 
-            using SKBitmap eredmeny = new(
-                width,
-                height,
-                SKColorType.Rgba8888,
-                SKAlphaType.Opaque);
+            using SKBitmap eredmeny = new(width, height, SKColorType.Rgba8888, SKAlphaType.Opaque);
 
             eredmeny.Pixels = kimenet;
 
@@ -205,7 +188,6 @@ namespace KmKiolvasasMaui.Kezelok
                 if (variancia > legnagyobbVariancia)
                 {
                     legnagyobbVariancia = variancia;
-
                     legjobbKuszob = t;
                 }
             }
@@ -217,10 +199,7 @@ namespace KmKiolvasasMaui.Kezelok
             if (eredetiKep == null || eredetiKep.Length == 0)
                 throw new ArgumentException("A kép nem lehet üres.");
 
-            using SKBitmap? eredeti = SKBitmap.Decode(eredetiKep);
-
-            if (eredeti == null)
-                throw new InvalidOperationException("A kép nem dekódolható.");
+            using SKBitmap? eredeti = SKBitmap.Decode(eredetiKep) ?? throw new InvalidOperationException("A kép nem dekódolható.");
 
             balArany = Math.Clamp(balArany, 0, 1);
             jobbArany = Math.Clamp(jobbArany, 0, 1);

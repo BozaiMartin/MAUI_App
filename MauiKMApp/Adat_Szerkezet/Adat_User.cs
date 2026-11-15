@@ -1,15 +1,6 @@
 ﻿namespace KmKiolvasasMaui.Adat_Szerkezet
 {
-    public class Adat_User(
-        int userId,
-        string felhasznaloNev,
-        string dolgozoSzam,
-        string jelszoHash,
-        string jelszoSalt,
-        DateTime jelszoLejarat,
-        int frissit,
-        string szervezet,
-        int admin)
+    public class Adat_User(int userId, string felhasznaloNev, string dolgozoSzam, string jelszoHash, string jelszoSalt, DateTime jelszoLejarat, int frissit, string szervezet, int admin)
     {
         public int UserId { get; private set; } = userId;
 

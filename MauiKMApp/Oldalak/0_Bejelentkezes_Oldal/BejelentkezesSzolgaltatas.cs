@@ -6,25 +6,16 @@ namespace KmKiolvasasMaui.Adatbazis
 {
     public enum BejelentkezesEredmenyTipus
     {
-        Sikeres,
-        HibasAdatok,
-        InaktivDolgozo,
-        JelszoCsereSzukseges
+        Sikeres, HibasAdatok, InaktivDolgozo, JelszoCsereSzukseges
     }
 
-    public sealed class BejelentkezesEredmeny
+    public sealed class BejelentkezesEredmeny(BejelentkezesEredmenyTipus tipus, Adat_User? felhasznalo = null)
     {
-        public BejelentkezesEredmenyTipus Tipus { get; }
+        public BejelentkezesEredmenyTipus Tipus { get; } = tipus;
 
-        public Adat_User? Felhasznalo { get; }
+        public Adat_User? Felhasznalo { get; } = felhasznalo;
 
         public bool Sikeres => Tipus == BejelentkezesEredmenyTipus.Sikeres;
-
-        public BejelentkezesEredmeny(BejelentkezesEredmenyTipus tipus, Adat_User? felhasznalo = null)
-        {
-            Tipus = tipus;
-            Felhasznalo = felhasznalo;
-        }
     }
 
     public class BejelentkezesSzolgaltatas
@@ -40,7 +31,7 @@ namespace KmKiolvasasMaui.Adatbazis
         }
 
 
-        public async Task<BejelentkezesEredmeny> BejelentkezesAsync(string dolgozoSzam, string jelszo)
+        public static async Task<BejelentkezesEredmeny> BejelentkezesAsync(string dolgozoSzam, string jelszo)
         {
             Stopwatch teljes = Stopwatch.StartNew();
 
@@ -62,7 +53,7 @@ namespace KmKiolvasasMaui.Adatbazis
 
             meres.Restart();
 
-            bool aktiv = await _dolgozoDb.DolgozoAktivAsync(dolgozoSzam);
+            bool aktiv = await SQL_Kezelo_Dolgozo.DolgozoAktivAsync(dolgozoSzam);
 
             meres.Stop();
 

@@ -13,18 +13,12 @@ namespace KmKiolvasasMaui.Kezelok
 
             Stopwatch stopper = Stopwatch.StartNew();
 
-            // TELJES KÉP:
-            // innen csak dátumot és pályaszámot
-            // keresünk.
             string? teljesSzoveg = await OcrSzovegAsync(imageBytes);
 
             OcrKinyertAdat eredmeny = OcrAdatKinyero.AlapAdatokKinyerese(teljesSzoveg ?? "");
 
             bool hasznaltElofeldolgozast = false;
 
-            // Ha a teljes nyers képből nem lett
-            // dátum vagy pályaszám, próbáljuk meg
-            // az előfeldolgozott változatot.
             if (!eredmeny.Datum.HasValue || !eredmeny.Palyaszam.HasValue)
             {
                 try
@@ -49,7 +43,6 @@ namespace KmKiolvasasMaui.Kezelok
                 }
             }
 
-            // NAPI OSZLOP  BAL OLDAL
 
             byte[] napiRegio = KepElofeldolgozo.RegioKivagas(imageBytes, balArany: 0.02, felsoArany: 0.20, jobbArany: 0.50, alsoArany: 0.80);
 
@@ -57,8 +50,6 @@ namespace KmKiolvasasMaui.Kezelok
 
             eredmeny.NapiKm = OcrAdatKinyero.KilometerErtekKinyerese(napiSzoveg ?? "");
 
-            // Ha a nyers ROI nem elég,
-            // előfeldolgozzuk.
             if (!eredmeny.NapiKm.HasValue)
             {
                 try
@@ -79,7 +70,6 @@ namespace KmKiolvasasMaui.Kezelok
                 }
             }
 
-            // ÖSSZES OSZLOP  JOBB OLDAL
 
             byte[] osszesRegio = KepElofeldolgozo.RegioKivagas(imageBytes, balArany: 0.50, felsoArany: 0.20, jobbArany: 0.98, alsoArany: 0.80);
 
@@ -108,13 +98,9 @@ namespace KmKiolvasasMaui.Kezelok
                 }
             }
 
-            // DEBUGHOZ elmentjük, hogy
-            // valójában mit látott az OCR.
             eredmeny.NyersOcrSzoveg = "=== TELJES KÉP ===\n" + (teljesSzoveg ?? "") + "\n\n=== NAPI ROI ===\n" + (napiSzoveg ?? "") + "\n\n=== ÖSSZES ROI ===\n" + (osszesSzoveg ?? "");
 
             eredmeny.FelismeresiForras = hasznaltElofeldolgozast ? "ROI + előfeldolgozás" : "ROI";
-
-            // VALIDÁCIÓ
 
             eredmeny.Bizonytalan = false;
 

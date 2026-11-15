@@ -54,8 +54,6 @@ namespace KmKiolvasasMaui
 
                 try
                 {
-                    // Nem fix 2,5 másodpercet várunk,
-                    // hanem az OCR tényleges végét.
                     siker = await _aktualisFeldolgozas.Task.WaitAsync(TimeSpan.FromSeconds(15));
                 }
                 catch (TimeoutException)
@@ -110,7 +108,6 @@ namespace KmKiolvasasMaui
         private async void CameraView_MediaCaptured(object sender, MediaCapturedEventArgs e)
         {
             string? filePath = null;
-
             bool siker = false;
 
             try

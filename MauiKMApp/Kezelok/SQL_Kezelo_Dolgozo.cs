@@ -9,7 +9,7 @@ namespace KmKiolvasasMaui.Kezelok
         private const string FajlNev = "Alapadatok.db";
         private const string TablaNev = "Dolgozo";
 
-        public async Task InicializalasAsync()
+        public static async Task InicializalasAsync()
         {
             using SqliteConnection connection = await SqliteKapcsolat.MegnyitAsync(FajlNev);
 
@@ -31,7 +31,7 @@ namespace KmKiolvasasMaui.Kezelok
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task RogzitesAsync(Adat_Dolgozo adat)
+        public static async Task RogzitesAsync(Adat_Dolgozo adat)
         {
             using SqliteConnection connection = await SqliteKapcsolat.MegnyitAsync(FajlNev);
 
@@ -65,7 +65,7 @@ namespace KmKiolvasasMaui.Kezelok
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task ModositasAsync(Adat_Dolgozo adat)
+        public static async Task ModositasAsync(Adat_Dolgozo adat)
         {
             using SqliteConnection connection = await SqliteKapcsolat.MegnyitAsync(FajlNev);
 
@@ -91,7 +91,7 @@ namespace KmKiolvasasMaui.Kezelok
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task<bool> DolgozoAktivAsync(string dolgozoSzam)
+        public static async Task<bool> DolgozoAktivAsync(string dolgozoSzam)
         {
             if (string.IsNullOrWhiteSpace(dolgozoSzam))
                 return false;
@@ -115,7 +115,7 @@ namespace KmKiolvasasMaui.Kezelok
         }
 
 
-        public async Task<bool> DolgozoLetezikAsync(string dolgozoSzam)
+        public static async Task<bool> DolgozoLetezikAsync(string dolgozoSzam)
         {
             if (string.IsNullOrWhiteSpace(dolgozoSzam))
                 return false;
